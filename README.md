@@ -1,11 +1,14 @@
-# FullStackTemplate
-Vue and Spring framework 
+# Build Full Stack with Vue and Spring
+
+Build an application with Vue and Spring framework from scretch. 
+
+Prepare
 
 - [ ] `> mkdir backend`
 
 - [ ] `> mkdir frontend`
 
-## Setup SpringBoot
+## 1. Setup SpringBoot
 
 ### initialize SpringBoot
 
@@ -40,3 +43,102 @@ public class HelloWorldController {
 ```
 
 3. run application by `> ./gradlew bootRun`
+4. Open browser and go to http://localhost:9000/helloworld
+
+## 2. Setup Vue
+
+1. initialize vue project `> vue create frontend`
+2. test `> npm run serve`
+
+## 3. Restful hellow world
+
+### Backend
+
+1. change annotation in HelloWorldController `@RequestMapping` to `@GetMapping`
+
+```java
+@RestController
+public class HelloWorldController {
+    
+    @GetMapping("/helloworld")
+    public String HelloWorld() {
+        return "Hello World";
+    }
+}
+```
+
+### Frontend
+
+In order to build a simplest hello world page, we remove the useless auto-generated code. 
+
+HelloWorld.vue
+```html
+<template>
+  <div class="hello">
+    <h1>{{ body.msg }}</h1>
+  </div>
+</template>
+
+<script>
+import axios from 'axios';
+
+export default {
+  name: 'HelloWorld',
+  data() {
+    return {
+      body: {
+        msg: ""
+      }
+    }
+  },
+  async mounted() {
+    console.log('Get data from backend');
+    this.body.msg = (await axios.get(`http://localhost:8080/api/helloworld`)).data;
+  }
+}
+</script>
+```
+
+App.vue
+```html
+<template>
+  <div id="app">
+    <HelloWorld />
+  </div>
+</template>
+
+<script>
+import HelloWorld from './components/HelloWorld.vue'
+
+export default {
+  name: 'App',
+  components: {
+    HelloWorld
+  }
+}
+</script>
+```
+
+When you start the backend and frontend servers and open http://localhost:8080, you will find that it didn't show anything and browser shown there was a 404 error. Because our backend port is 9000 for dev! If we change the 8080 to 9000, then browser will report a CORS error. Here we need to add a proxy. 
+
+Create a file in the root directory 
+
+vue.config.js
+```javascript
+module.exports = {
+configureWebpack: {
+    devServer: {
+        proxy: {
+          '/api': {
+            target: 'http://localhost:9000/',
+            changeOrigin: true,
+            ws: true,
+            pathRewrite: {
+              '^/api': ''
+            }
+          }
+        }
+      }
+  }
+};
+```
