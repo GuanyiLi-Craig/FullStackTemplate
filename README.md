@@ -142,3 +142,19 @@ configureWebpack: {
   }
 };
 ```
+
+Here we have a very simple template for SpringBoot backend and Vue frontend. 
+
+# Multi Projects Refect
+
+Microservice system includes multiple SpringBoot projects and manage them by SpringCloud framework. But firstly, we want to refect the above simple project into a multi projects managed by a root probject. These sub projects (modules) will be deployed to different hosts in the real world or managed by Kubernetes. We will do it bit by bit. 
+
+Here, in order to simplify the problem, we will implement two projects which return "hello world 1" and "hello world 2". Simple, ha! 
+
+## Setup Gradle
+
+Before doing anything, let's remove the backend code first. 
+
+Remove /src, /build, /bin and ./gradle
+
+Actually, I want to build a website which can manage users and scrap web pages for me. So I will name my sub projects by user-manager and web-scrap
