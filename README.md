@@ -157,4 +157,70 @@ Before doing anything, let's remove the backend code first.
 
 Remove /src, /build, /bin and ./gradle
 
-Actually, I want to build a website which can manage users and scrap web pages for me. So I will name my sub projects by user-manager and web-scrap
+Actually, I want to build a website which can manage users and scrap web pages for me. So I will name my sub projects by user-manager and web-scraper. 
+
+Add user-manager and web-scraper to settings.gradle
+
+```js
+rootProject.name = 'full-stack-template'
+include 'user-manager'
+include 'web-scraper'
+```
+
+Now the root build.gradle file will be like 
+
+```js
+plugins {
+	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+	id 'java'
+}
+
+subprojects {
+	group = 'com.bitforcestudio'
+	version = '0.0.1-SNAPSHOT'
+	sourceCompatibility = '1.8'
+
+	repositories {
+		mavenCentral()
+	}
+
+	dependencyManagement {
+	}
+}
+```
+
+Use Spring Initializer to init two projects with web, actuator and lombok dependency. Remove the following
+
+`gradlew* settings.gradle /gradle` 
+
+and replace the build.gradle to 
+
+```js
+plugins {
+	id 'org.springframework.boot' version '2.3.1.RELEASE'
+	id 'io.spring.dependency-management'
+	id 'java'
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+}
+
+test {
+	useJUnitPlatform()
+}
+
+```
+
