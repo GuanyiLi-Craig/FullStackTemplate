@@ -189,6 +189,8 @@ subprojects {
 }
 ```
 
+Root gradle is used to define the dependencies for all the projects and versioning. Here we setup the java version apply some shared configurations to all the sub projects, such as current version, group id and java version. 
+
 Use Spring Initializer to init two projects with web, actuator and lombok dependency. Remove the following
 
 `gradlew* settings.gradle /gradle` 
@@ -224,3 +226,101 @@ test {
 
 ```
 
+A backend application has the following structure
+
+`frontend <=> controller -> service -> dao -> database`
+
+We will implement this bit by bit, but now lets focus on the logic before `dao`. 
+
+Firstly, let's add service interface and impl. The structure will be like 
+
+```
+service
+   |___ XxxxService.java   `interface`
+   |___ impl
+          |___ XxxxServiceImpl.java    `class`
+```
+
+The two main user functions are login and logout. Let's just implement these two and return some arbitory info to the website. 
+
+UserManagerService.java
+```java
+package com.bitforcestudio.usermanager.service;
+
+public interface UserManagerService {
+    public String login(String username, String password);
+
+    public String logout(String username);
+}
+```
+
+UserManagerServiceImpl.java
+```java
+package com.bitforcestudio.usermanager.service.impl;
+
+import com.bitforcestudio.usermanager.service.UserManagerService;
+import org.springframework.stereotype.Service;
+
+@Service
+public class UserManagerServiceImpl implements UserManagerService {
+
+    @Override
+    public String login(String username, String password) {
+        return username + " login " + password;
+    }
+
+    @Override
+    public String logout(String username) {
+        return username + " logout";
+    }
+    
+}
+```
+
+And we need to add something to application.yml in resource directory. 
+
+application.yml
+```yaml
+server:
+  port: 8002
+```
+
+Then we need to add the controller, which will directly interact with the requests. Let's create Controller class like 
+
+```
+controller
+    |___  XxxxController.java
+```
+
+UserManagerController.java
+```java
+package com.bitforcestudio.usermanager.controller;
+
+import com.bitforcestudio.usermanager.service.impl.UserManagerServiceImpl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+
+@RestController
+public class UserManagerController {
+
+    @Autowired
+    private UserManagerService userManagerService;
+
+    @GetMapping(value="/user/login/{username}/{password}")
+    public String login(@PathVariable("username") String username, 
+                        @PathVariable("password") String password) {
+        return userManagerService.login(username, password);
+    }
+    
+    @GetMapping(value="/user/logout/{username}")
+    public String logout(@PathVariable("username") String username) {
+        return userManagerService.logout(username);
+    }
+}
+```
+
+Use ` ./gradlew :<project_name>:bootRun` to test each project.  

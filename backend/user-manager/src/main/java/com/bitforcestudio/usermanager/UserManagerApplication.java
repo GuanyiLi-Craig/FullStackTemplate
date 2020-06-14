@@ -1,13 +1,13 @@
-package com.bitforcestudio.webscraper;
+package com.bitforcestudio.usermanager;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class DemoApplication {
+public class UserManagerApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(DemoApplication.class, args);
+		SpringApplication.run(UserManagerApplication.class, args);
 	}
 
 }
