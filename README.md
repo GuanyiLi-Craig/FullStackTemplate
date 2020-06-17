@@ -373,6 +373,12 @@ Explain:
 * `-p 3306:3306` expose port 3306 to the outside
 * `-d ` run as daemon service
 
+To test the MySQL container, try connect to MySQL from terminal. 
+
+```bash
+>mysql -h localhost -P 3306 -u root -p --protocol=tcp
+```
+
 Then we add an entity of user to the project 
 
 entities/User.java
