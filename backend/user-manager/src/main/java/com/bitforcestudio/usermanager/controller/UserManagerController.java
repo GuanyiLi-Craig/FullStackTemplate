@@ -14,8 +14,14 @@ public class UserManagerController {
     @Autowired
     private UserManagerService userManagerService;
 
+    @GetMapping(value="/user/signup/{username}/{password}")
+    public String signup(@PathVariable("username") String username, 
+                        @PathVariable("password") String password) {
+        return userManagerService.signup(username, password);
+    }
+
     @GetMapping(value="/user/login/{username}/{password}")
-    public String login(@PathVariable("username") String username, 
+    public Object login(@PathVariable("username") String username, 
                         @PathVariable("password") String password) {
         return userManagerService.login(username, password);
     }

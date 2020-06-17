@@ -323,4 +323,218 @@ public class UserManagerController {
 }
 ```
 
-Use ` ./gradlew :<project_name>:bootRun` to test each project.  
+Use ` ./gradlew :<project_name>:bootRun` to test each project. 
+
+# Add Database connection
+
+We want to create user table and job table. Let's focus on the user table firstly. 
+
+The general process of adding database layer is 
+
+* add dependency
+* add DAO which expose the CRUD interfaces
+* add corresponding Mapper (Mybatis)
+
+## User Table
+
+A use table should contain the following columns
+
+* username
+* password
+
+Corresponding SQL code:
+
+```sql
+CREATE TABLE user(
+  user_id INT UNSIGNED AUTO_INCREMENT NOT NULL,
+  user_name VARCHAR(20) NOT NULL,
+  password CHAR(32) NOT NULL,
+  user_stats TINYINT NOT NULL,
+  modified_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY pk_customerid(user_id)
+) ENGINE = innodb;
+```
+
+In local dev we use docker to run MySQL server.
+
+```bash
+docker run --restart always --name mysql-spring-cloud --net spring-cloud-dev-network -v /to-local-disk-data/mysql:/var/lib/mysql -p 3306:3306 -d -e MYSQL_ROOT_PASSWORD=123456 mysql
+```
+
+Explain:
+* `--restart always` to ensure this MySQL container will start when docker starts
+* `--net spring-cloud-dev-network` ref [<- docker net ->](https://docs.docker.com/network/bridge/)
+
+> User-defined bridges provide better isolation.
+> All containers without a --network specified, are attached to the default bridge network. This can be a risk, as unrelated stacks/services/containers are then able to communicate.
+> Using a user-defined network provides a scoped network in which only containers attached to that network are able to communicate.
+
+* `-v /to-local-disk-data/mysql:/var/lib/mysql` to persistent the database
+* `-p 3306:3306` expose port 3306 to the outside
+* `-d ` run as daemon service
+
+Then we add an entity of user to the project 
+
+entities/User.java
+```java
+import java.io.Serializable;
+import java.util.Date;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class User implements Serializable {
+    private Integer userId;
+    private String userName;
+    private String password;
+    private Integer userStats;
+    private Date modifiedTime;
+
+    public User(Integer userId, String userName, String password) {
+        this(userId, userName, password, 0, new Date(System.currentTimeMillis()));
+    }
+
+    public User(String userName, String password) {
+        this(-1, userName, password, 0, new Date(System.currentTimeMillis()));
+    }
+}
+```
+
+## Dependencies & Configurations
+
+* Add MySQL and JDBC dependency to `build.gradle`
+
+```groovy
+	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+  implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.1.3'
+	runtimeOnly 'mysql:mysql-connector-java'
+```
+
+* Add MySQL and Mybatis configuration to application.yml
+
+```yaml
+server:
+  port: 8002
+
+spring:
+  application:
+    name: user-manager-service
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost/spring
+    username: root
+    password: 123456
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.bitforcestudio.usermanager.entities
+```
+
+Here we need to add dao and corresponding mapper. 
+
+UserDao.java 
+```java
+@Mapper
+public interface UserDao {
+    public boolean createUserTable();
+
+    public int createNewUser(User user);
+
+    public boolean removeUser(Integer userId);
+
+    public int updateUser(User user);
+
+    public User getUserById(@Param("userId") Integer userId);
+
+    public User getUserByUserName(@Param("userName") String userName);
+}
+```
+
+XML mapper
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bitforcestudio.usermanager.dao.UserDao">
+
+
+    <sql id="createUserTable">
+        create table if not exists user(user_id INT UNSIGNED AUTO_INCREMENT NOT NULL,
+                        user_name VARCHAR(20) NOT NULL,
+                        password CHAR(32) NOT NULL,
+                        user_stats TINYINT NOT NULL,
+                        modified_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                        PRIMARY KEY pk_customerid(user_id)
+        ) engine=innodb;
+    </sql>
+
+
+    <insert id="createNewUser" parameterType="User" useGeneratedKeys="true" keyProperty="userId">
+          insert into user(user_name, password, user_stats) values(#{userName}, #{password}, #{userStats});
+    </insert>
+
+
+    <delete id="removeUser" parameterType="Integer">
+          delete from user where id=#{id};
+    </delete>
+
+
+    <update id="updateUser" parameterType="User" useGeneratedKeys="true" keyProperty="userId">
+          update user set user_name=#{userName} password=#{password} user_stats=#{userStats} where userId=#{userId};
+    </update>
+
+
+    <select id="getUserById" parameterType="Integer" resultMap="UserBaseResultMap">
+          select * from user where user_id=#{userId};
+    </select>
+
+    <resultMap id="UserBaseResultMap" type="com.bitforcestudio.usermanager.entities.User">
+        <id column="user_id" property="userId" jdbcType="INTEGER"/>
+        <id column="user_name" property="userName" jdbcType="VARCHAR"/>
+        <id column="password" property="password" jdbcType="CHAR"/>
+        <id column="user_stats" property="userStats" jdbcType="TINYINT"/>
+        <id column="modified_time" property="modifiedTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+
+    <select id="getUserByUserName" parameterType="String" resultMap="UserBaseResultMap">
+          select * from user where user_name=#{userName};
+    </select>
+
+</mapper>
+```
+
+Then add some simple logic in service and controller to test the CRUD
+
+ServiceImpl
+```java
+    @Override
+    public String signup(String username, String password) {
+        int id = userDao.createNewUser(new User(username, password));
+
+        return Integer.toString(id);
+    }
+```
+
+Controller
+```java
+    @GetMapping(value="/user/signup/{username}/{password}")
+    public String signup(@PathVariable("username") String username, 
+                        @PathVariable("password") String password) {
+        return userManagerService.signup(username, password);
+    }
+```
+
+Finally, let's test the project by 
+
+`./gradlew :user-manager:bootRun`
+
+You can insert a user by `http://localhost:8002/user/signup/<username>/<password>`
+
+Next step will be implement the production level of user signup, login, logout and cookie/session using Spring Security
