@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bitforcestudio.usermanager.dao.UserDao">
+
+
+    <sql id="createUserTable">
+        create table if not exists user(user_id INT UNSIGNED AUTO_INCREMENT NOT NULL,
+                        user_name VARCHAR(20) NOT NULL,
+                        password CHAR(32) NOT NULL,
+                        user_stats TINYINT NOT NULL,
+                        modified_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                        PRIMARY KEY pk_customerid(user_id)
+        ) engine=innodb;
+    </sql>
+
+
+    <insert id="createNewUser" parameterType="User" useGeneratedKeys="true" keyProperty="userId">
+          insert into user(user_name, password, user_stats) values(#{userName}, #{password}, #{userStats});
+    </insert>
+
+
+    <delete id="removeUser" parameterType="Integer">
+          delete from user where id=#{id};
+    </delete>
+
+
+    <update id="updateUser" parameterType="User" useGeneratedKeys="true" keyProperty="userId">
+          update user set user_name=#{userName} password=#{password} user_stats=#{userStats} where userId=#{userId};
+    </update>
+
+
+    <select id="getUserById" parameterType="Integer" resultMap="UserBaseResultMap">
+          select * from user where user_id=#{userId};
+    </select>
+
+    <resultMap id="UserBaseResultMap" type="com.bitforcestudio.usermanager.entities.User">
+        <id column="user_id" property="userId" jdbcType="INTEGER"/>
+        <id column="user_name" property="userName" jdbcType="VARCHAR"/>
+        <id column="password" property="password" jdbcType="CHAR"/>
+        <id column="user_stats" property="userStats" jdbcType="TINYINT"/>
+        <id column="modified_time" property="modifiedTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+
+    <select id="getUserByUserName" parameterType="String" resultMap="UserBaseResultMap">
+          select * from user where user_name=#{userName};
+    </select>
+
+</mapper>
