@@ -542,5 +542,3 @@ Finally, let's test the project by
 `./gradlew :user-manager:bootRun`
 
 You can insert a user by `http://localhost:8002/user/signup/<username>/<password>`
-
-Next step will be implement the production level of user signup, login, logout and cookie/session using Spring Security

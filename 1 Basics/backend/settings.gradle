@@ -1,3 +1,2 @@
 rootProject.name = 'full-stack-template'
 include 'user-manager'
-include 'web-scraper'
