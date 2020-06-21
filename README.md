@@ -15,9 +15,7 @@ There are 5 steps.
     * MySQL database stores data. 
 
 2. Security
-    * This step implement OAuth2 and Spring Security to manage user login, token and session
-    * OAuth2 as an authn provider
-    * Spring Security handles the session and token
+    * This step implement Spring Security to manage user login, token and session
 
 3. Business Logic
 
