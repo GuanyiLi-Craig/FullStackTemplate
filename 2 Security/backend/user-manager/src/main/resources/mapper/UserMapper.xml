@@ -16,7 +16,7 @@
     </insert>
 
 
-    <insert id="createNewUser" parameterType="User" useGeneratedKeys="true" keyProperty="userId">
+    <insert id="createNewUser" parameterType="UserEntity" useGeneratedKeys="true" keyProperty="userId">
           insert into user(user_name, password, user_stats) values(#{userName}, #{password}, #{userStats});
     </insert>
 
@@ -26,7 +26,7 @@
     </delete>
 
 
-    <update id="updateUser" parameterType="User" useGeneratedKeys="true" keyProperty="userId">
+    <update id="updateUser" parameterType="UserEntity" useGeneratedKeys="true" keyProperty="userId">
           update user set user_name=#{userName} password=#{password} user_stats=#{userStats} where userId=#{userId};
     </update>
 
@@ -35,7 +35,7 @@
           select * from user where user_id=#{userId};
     </select>
 
-    <resultMap id="UserBaseResultMap" type="com.bitforcestudio.usermanager.entities.User">
+    <resultMap id="UserBaseResultMap" type="com.bitforcestudio.usermanager.entities.UserEntity">
         <id column="user_id" property="userId" jdbcType="INTEGER"/>
         <id column="user_name" property="userName" jdbcType="VARCHAR"/>
         <id column="password" property="password" jdbcType="CHAR"/>

@@ -1,6 +1,10 @@
 server:
   port: 8002
 
+jwt:
+  header: Authorization
+  secret: my-very-secret-key
+
 spring:
   application:
     name: user-manager-service

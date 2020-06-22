@@ -3,7 +3,7 @@ package com.bitforcestudio.usermanager.service.impl;
 import javax.annotation.Resource;
 
 import com.bitforcestudio.usermanager.dao.UserDao;
-import com.bitforcestudio.usermanager.entities.User;
+import com.bitforcestudio.usermanager.entities.UserEntity;
 import com.bitforcestudio.usermanager.service.UserManagerService;
 
 import org.springframework.stereotype.Service;
@@ -15,8 +15,8 @@ public class UserManagerServiceImpl implements UserManagerService {
     private UserDao userDao;
 
     @Override
-    public User login(String username, String password) {
-        User user = userDao.getUserByUserName(username);
+    public UserEntity login(String username, String password) {
+        UserEntity user = userDao.getUserByUserName(username);
         if (user.getPassword().equals(password)) {
             return user;
         } else {
@@ -31,7 +31,7 @@ public class UserManagerServiceImpl implements UserManagerService {
 
     @Override
     public String signup(String username, String password) {
-        int id = userDao.createNewUser(new User(username, password));
+        int id = userDao.createNewUser(new UserEntity(username, password));
 
         return Integer.toString(id);
     }

@@ -1,6 +1,6 @@
 package com.bitforcestudio.usermanager.dao;
 
-import com.bitforcestudio.usermanager.entities.User;
+import com.bitforcestudio.usermanager.entities.UserEntity;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -9,13 +9,13 @@ import org.apache.ibatis.annotations.Param;
 public interface UserDao {
     public boolean createUserTable();
 
-    public int createNewUser(User user);
+    public int createNewUser(UserEntity user);
 
     public boolean removeUser(Integer userId);
 
-    public int updateUser(User user);
+    public int updateUser(UserEntity user);
 
-    public User getUserById(@Param("userId") Integer userId);
+    public UserEntity getUserById(@Param("userId") Integer userId);
 
-    public User getUserByUserName(@Param("userName") String userName);
+    public UserEntity getUserByUserName(@Param("userName") String userName);
 }
