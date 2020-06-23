@@ -1,5 +1,9 @@
 # Security
 
+This is the security architecture for this project. 
+
+![full stack](static/SecurityArch.png)
+
 * copy the code from basics, including `\backend` and `\frontend`
 
 ## Add Security to Project
