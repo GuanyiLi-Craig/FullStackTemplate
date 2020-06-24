@@ -1,5 +1,11 @@
 server:
-  port: 8002
+  port: 8443
+  ssl:
+    enabled: true
+    key-store: src/main/resources/statics/secret/bitforcesecurity.p12
+    key-store-password: bitforcesecurity
+    keyStoreType: PKCS12
+    keyAlias: bitforcesecurity
 
 spring:
   application:

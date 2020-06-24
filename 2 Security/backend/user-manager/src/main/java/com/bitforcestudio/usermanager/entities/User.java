@@ -11,6 +11,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User implements Serializable {
+
+    /**
+     *
+     */
+    private static final long serialVersionUID = 31774009846893656L;
+    
     private Integer userId;
     private String userName;
     private String password;
