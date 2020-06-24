@@ -4,8 +4,10 @@ server:
     enabled: true
     key-store: src/main/resources/statics/secret/bitforcesecurity.p12
     key-store-password: bitforcesecurity
-    keyStoreType: PKCS12
-    keyAlias: bitforcesecurity
+    key-store-type: PKCS12
+    key-alias: bitforcesecurity
+    key-password: bitforcesecurity
+ 
 
 spring:
   application:
