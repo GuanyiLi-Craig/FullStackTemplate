@@ -31,6 +31,7 @@ public class UserManagerServiceImpl implements UserManagerService {
 
     @Override
     public String signup(String username, String password) {
+        System.out.println(username + "  " + password);
         int id = userDao.createNewUser(new User(username, password));
 
         return Integer.toString(id);
@@ -45,6 +46,12 @@ public class UserManagerServiceImpl implements UserManagerService {
         } else {
             return "User table exists";
         }
+    }
+
+    @Override
+    public User getUserbyUserName(String username) {
+        // TODO Auto-generated method stub
+        return null;
     }
     
 }

@@ -10,5 +10,7 @@ public interface UserManagerService {
 
     public String logout(String username);
 
+    public User getUserbyUserName(String username);
+
     public String initialize();
 }
