@@ -1,9 +1,9 @@
 module.exports = {
-configureWebpack: {
+  configureWebpack: {
     devServer: {
         proxy: {
           '/api': {
-            target: 'http://localhost:9000/',
+            target: 'https://localhost:8443',
             changeOrigin: true,
             ws: true,
             pathRewrite: {

@@ -27,8 +27,8 @@ public class UserManagerSecurityConfiguration extends WebSecurityConfigurerAdapt
     
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests().antMatchers("/user/**").hasRole("USER");
-        http.formLogin().successForwardUrl("/user/login/abc/abc").failureForwardUrl("/user/login/abcd/abcd");
+        http.authorizeRequests().antMatchers("/user/**").hasRole("USER").and()
+            .csrf().disable();
     }
 
     @Override

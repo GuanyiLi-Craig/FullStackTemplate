@@ -20,6 +20,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userDao.getUserByUserName(username);
+        System.out.println(username + "-->" + user);
         UserDetails userDetails = new UserDetailsImpl(user);
         return userDetails;
     }
