@@ -1,8 +1,8 @@
 package com.bitforcestudio.usermanager.controller;
 
-import com.bitforcestudio.usermanager.entities.LoginForm;
+import com.bitforcestudio.usermanager.entities.User;
+import com.bitforcestudio.usermanager.entities.UserInfo;
 import com.bitforcestudio.usermanager.service.UserManagerService;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -33,15 +33,15 @@ public class UserManagerController {
         return userManagerService.signup(username, passwordEncoder.encode(password));
     }
 
-    @PostMapping(value = "/login")
-    public Object login(@RequestBody String data) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        LoginForm loginForm = objectMapper.readValue(data, LoginForm.class);
-        System.out.println("User login " + loginForm);
 
-        return userManagerService.login(loginForm.getUsername(), passwordEncoder.encode(loginForm.getPassword()));
+    @GetMapping(value = "/user/getUserInfo/{username}")
+    public Object getUserInfo(@PathVariable("username") String username) {
+        User user = userManagerService.getUserbyUserName(username);
+        
+        UserInfo userInfo = new UserInfo(user.getUserName(), user.getModifiedTime().toString(), user.getRoles().toString());
+        return userInfo;
     }
-    
+
     @GetMapping(value="/user/logout/{username}")
     public String logout(@PathVariable("username") String username) {
         return userManagerService.logout(username);

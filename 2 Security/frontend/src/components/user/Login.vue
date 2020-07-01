@@ -1,5 +1,5 @@
 <template>
-  <form id="user-login-form" @submit.prevent="handleLogin">
+  <div id="user-login-form">
     <h3 class="title">Login Form</h3>
     <input
       ref="username"
@@ -16,7 +16,7 @@
     />
 
     <button v-on:click="handleLogin()">Login</button>
-  </form>
+  </div>
 </template>
 
 <script lang="ts">
@@ -31,9 +31,18 @@ export default class Login extends Vue {
 
   public async handleLogin() {
     console.log(this.loginForm);
-
-    const res = await axios.post(`/api/login`, this.loginForm);
-    console.log(res);
+    const url = `/api/login?username=`
+                + this.loginForm.username
+                + `&password=`
+                + this.loginForm.password;
+    //const header = {
+    //  "Access-Control-Allow-Origin": "*",
+    //  "Access-Control-Allow-Headers": " Origin, X-Requested-With, Content-Type, Accept",
+    //  "Access-Control-Allow-Methods": "PUT,POST,GET,DELETE,OPTIONS",
+    //}
+    const res = await axios.post(url);//, {}, {headers: header});
+    console.log(res.data);
+    this.$router.push("/user/home");
   }
 }
 </script>
