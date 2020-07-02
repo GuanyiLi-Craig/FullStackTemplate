@@ -15,8 +15,7 @@ public class UserDetailsImpl implements UserDetails {
     /**
      *
      */
-    private static final long serialVersionUID = 1L;
-
+    private static final long serialVersionUID = 9073016596341987290L;
     private User user;
 
     public UserDetailsImpl(User user) {

@@ -23,7 +23,9 @@ export default {
   async mounted() {
     const username = this.$route.params.username;
     const url = `/api/user/getUserInfo/` + username;
-    const res = await axios.get(url);
+    const res = await axios.get(url, {
+      withCredentials: true
+    });
     this.userInfo = {
       username: username,
       modifiedTime: res.data.modifiedTime,

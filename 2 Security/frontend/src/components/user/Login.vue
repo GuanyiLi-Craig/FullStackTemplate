@@ -35,7 +35,9 @@ export default class Login extends Vue {
                 + this.loginForm.username
                 + `&password=`
                 + this.loginForm.password;
-    const res = await axios.post(url);
+    const res = await axios.post(url, {
+      withCredentials: true
+    });
     console.log(res.data);
     this.$router.push({name: 'UserHome', params: {username: this.loginForm.username}});
   }

@@ -3,20 +3,19 @@ package com.bitforcestudio.usermanager.controller;
 import com.bitforcestudio.usermanager.entities.User;
 import com.bitforcestudio.usermanager.entities.UserInfo;
 import com.bitforcestudio.usermanager.service.UserManagerService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
+@Slf4j
 public class UserManagerController {
 
     @Autowired
@@ -36,6 +35,7 @@ public class UserManagerController {
 
     @GetMapping(value = "/user/getUserInfo/{username}")
     public Object getUserInfo(@PathVariable("username") String username) {
+        log.info("get user info " + username);
         User user = userManagerService.getUserbyUserName(username);
         
         UserInfo userInfo = new UserInfo(user.getUserName(), user.getModifiedTime().toString(), user.getRoles().toString());

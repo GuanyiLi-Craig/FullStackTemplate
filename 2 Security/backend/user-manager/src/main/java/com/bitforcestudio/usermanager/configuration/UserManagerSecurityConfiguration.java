@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -28,7 +27,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -43,10 +41,6 @@ public class UserManagerSecurityConfiguration extends WebSecurityConfigurerAdapt
 
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
-
-    //@Autowired
-    //private AuthenticationDetailsSource<HttpServletRequest, WebAuthenticationDetailsSource> authenticationDetailsSource;
-    
 
     @Bean
     PasswordEncoder passwordEncoder() {
@@ -65,7 +59,6 @@ public class UserManagerSecurityConfiguration extends WebSecurityConfigurerAdapt
                         .successHandler(new AuthSuccessHandler())
                         .failureHandler(new AuthFailHandler())
                         .loginProcessingUrl("/login")
-                        //.authenticationDetailsSource(authenticationDetailsSource())
                         .and()
                         .logout().logoutSuccessHandler(new LogoutSuccessHandler())
                         .logoutUrl("/logout")
