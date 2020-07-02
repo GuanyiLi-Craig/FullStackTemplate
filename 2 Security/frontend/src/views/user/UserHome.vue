@@ -7,6 +7,7 @@
 <script>
 // @ is an alias to /src
 import Home from "@/components/user/Home.vue";
+import axios from "axios";
 
 export default {
   name: "UserHome",
@@ -17,6 +18,16 @@ export default {
         modifiedTime: "",
         role: ""
       }
+    };
+  },
+  async mounted() {
+    const username = this.$route.params.username;
+    const url = `/api/user/getUserInfo/` + username;
+    const res = await axios.get(url);
+    this.userInfo = {
+      username: username,
+      modifiedTime: res.data.modifiedTime,
+      role: res.data.role
     };
   },
   components: {

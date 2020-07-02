@@ -24,9 +24,10 @@ const routes: Array<RouteConfig> = [
     component: UserLogin
   },
   {
-    path: "/user/home",
+    path: "/user/home/:username",
     name: "UserHome",
-    component: UserHome
+    component: UserHome,
+    props: true
   }
 ];
 
