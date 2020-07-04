@@ -1,10 +1,20 @@
 # Security
 
+In this section, our goal is to build a vue + spring security framework which support
+
+* https
+* login / logout
+* develop locally
+
+Firstly, let's
+
 * copy the code from basics, including `\backend` and `\frontend`
 
 ## Add Security to Project
 
-Like always, 3 steps
+Let's firstly add a very simple spring security demo by using in memory user. 
+
+Like always, set things up by 3 steps
 
 * Dependency
     * `implementation 'org.springframework.boot:spring-boot-starter-security'`
@@ -57,7 +67,7 @@ There are two ways to get certificate
 Here we are going to use Self Signed certificate. We can generate it by keytool provided by JDK
 
 ```bash
-.\keytool.exe -genkeypair -alias certificate_name -storetype PKCS12 -keyalg RSA -keysize 2048 -keystore certificate_name.p12 -validity 3650 -keypass password -storepass bitforcesecurity
+.\keytool.exe -genkeypair -alias certificate_name -storetype PKCS12 -keyalg RSA -keysize 2048 -keystore certificate_name.p12 -validity 3650 -keypass password -storepass certificate_password
 ```
 
 * `genkey`: generates a key
@@ -68,4 +78,204 @@ Here we are going to use Self Signed certificate. We can generate it by keytool 
 * `keystore`: the name of the keystore;
 * `validity`: validity number of days;
 
+After generating the certificate file, copy this file to the project directory `resources/secret/certificate_name.p12`. 
+
+### Add Config to `application.yml`
+
+In order to enable SSL, we should add some configuration to `application.yml`
+
+```yaml
+server:
+  ssl:
+    enabled: true
+    key-store: src/main/resources/statics/secret/certificate_name.p12
+    key-store-password: certificate_password
+    keyStoreType: PKCS12
+    keyAlias: certificate_name
+```
+
+### Add Config to Spring Boot
+
+Here, we has to 
+
+* enable SSL trafic
+* add HTTP to HTTPS redirecting. 
+
+In order to keep code base clean, we create another config class to handle SSL separately, `configuration/ServerConfig.java`, and add the following code. 
+
+ServerConfig.java
+```java
+@Configuration
+public class ServerConfig {
+
+    @Bean
+    public ServletWebServerFactory servletContainer() {
+        // Enable SSL Trafic
+        TomcatServletWebServerFactory tomcat = new TomcatServletWebServerFactory() {
+            @Override
+            protected void postProcessContext(Context context) {
+                SecurityConstraint securityConstraint = new SecurityConstraint();
+                securityConstraint.setUserConstraint("CONFIDENTIAL");
+                SecurityCollection collection = new SecurityCollection();
+                collection.addPattern("/user/*");
+                securityConstraint.addCollection(collection);
+                context.addConstraint(securityConstraint);
+            }
+        };
+
+        // Add HTTP to HTTPS redirect
+        tomcat.addAdditionalTomcatConnectors(httpToHttpsRedirectConnector());
+
+        return tomcat;
+    }
+
+    /*
+    We need to redirect from HTTP to HTTPS. Without SSL, this application used
+    port 8002. With SSL it will use port 8443. So, any request for 8002 needs to be
+    redirected to HTTPS on 8443.
+     */
+    private Connector httpToHttpsRedirectConnector() {
+        Connector connector = new Connector(TomcatServletWebServerFactory.DEFAULT_PROTOCOL);
+        connector.setScheme("http");
+        connector.setPort(8002);
+        connector.setSecure(false);
+        connector.setRedirectPort(8443);
+        return connector;
+    }
+}
+```
+
+To test the SSL, we could firstly try "https://localhost:8443/login", it should show the Spring security build in login page. And then we should try http redirecting by "http://localhost:8002/login", the request should be redirect to `https`
+
+## User Services
+
+Spring security intergreted several useful user services to handle user related actions, such as login, logout, cookie (remember me) and so on. 
+
+In this demo, we are going to do the following to intergrate database backed user services and intergrate user service with authn & authz,  
+
+* implement `UserDetails` interface as `UserDetailsImp`
+* implement `UserDetailsService` interface as `UserDetailsServiceImpl`
+* create auth provider with `UserDetailsService` instance (bean) based on Dao in configuration
+
+### Implement `UserDetails`
+
+There are lots of methods need to override. We can default the return value as `true` for those boolean type method, and focus on the `getAuthorities()`. We need to add permissions and roles to the authorities list. 
+
+`service\impl\UserDetailsImpl.java`
+```java
+public class UserDetailsImpl implements UserDetails {
+    ...
+
+    private User user;
+
+    public UserDetailsImpl(User user) {
+        this.user = user;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        List<GrantedAuthority> authorities = new ArrayList<>();
+
+        System.out.println(user);
+
+        // get list of permissions
+        user.getPermissionsList().forEach(p -> {
+            authorities.add(new SimpleGrantedAuthority(p));
+        });
+
+        // get list of roles
+        user.getRolesList().forEach(r -> {
+            authorities.add(new SimpleGrantedAuthority(r));
+        });
+        return authorities;
+    }
+
+    ...
+}
+```
+
+### Implement 'UserDetailsService'
+
+Spring security helps us to check the user name and password, we only need to implement an interface to return a UserDetails instance, this interface is `UserDetailsService`. 
+
+We also need to register this class as a Spring service. 
+
+`service\impl\UserDetailsServiceImpl.java`
+```java
+@Service
+public class UserDetailsServiceImpl implements UserDetailsService {
+
+    private UserDao userDao;
+
+    public UserDetailsServiceImpl(UserDao userDao) {
+        this.userDao = userDao;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userDao.getUserByUserName(username);
+        UserDetails userDetails = new UserDetailsImpl(user);
+        return userDetails;
+    }
+    
+}
+```
+
+### Intergrate `UserDetailsService` with Auth Provider
+
+This is the final step to enable database backed user services auth. 
+
+* autowire `UserDetailsService`
+* Add a `DaoAuthenticationProvider` auth provider as a bean
+* Replace `inMemoryAuthentication` by auth provider
+* Update authorize request roles. 
+    * give `\login` public permission
+    * limit `\user\**` permission to logined user. 
+
+`configuration\UserManagerSecurityConfiguration.java`
+```java
+@Configuration
+@EnableWebSecurity
+@Slf4j
+public class UserManagerSecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+    @Autowired
+    private UserDetailsServiceImpl userDetailsService;
+
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+    
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.authorizeRequests()
+            .antMatchers("/login**").permitAll()
+            .antMatchers("/user/**").authenticated()
+            .and()
+            .csrf().disable()
+            .cors();
+    }
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.authenticationProvider(authenticationProvider());
+    }
+
+    @Bean
+    DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+        authenticationProvider.setPasswordEncoder(passwordEncoder());
+        authenticationProvider.setUserDetailsService(userDetailsService);
+
+        return authenticationProvider;
+    }
+
+    ...
+}
+```
+
+We can simply add a user in database and test the login by "https://localhost:8443/login". 
+
+## Front End
 
