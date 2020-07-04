@@ -1,6 +1,6 @@
 <template>
   <div class="login">
-    <Login v-bind:loginForm="this.loginForm"/>
+    <Login v-bind:loginForm="this.loginForm" />
   </div>
 </template>
 
@@ -11,12 +11,12 @@ import Login from "@/components/user/Login.vue";
 export default {
   name: "UserLogin",
   data() {
-      return {
-            loginForm: {
-                username: '',
-                password: '',
-            },
-      };
+    return {
+      loginForm: {
+        username: "",
+        password: ""
+      }
+    };
   },
   components: {
     Login

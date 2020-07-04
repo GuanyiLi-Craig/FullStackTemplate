@@ -84,9 +84,14 @@ public class UserManagerSecurityConfiguration extends WebSecurityConfigurerAdapt
 
     @Bean
 	CorsConfigurationSource corsConfigurationSource() {
-		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(Arrays.asList("http://localhost", "http://localhost:3000", "http://192.168.1.50:3000", "http://192.168.1.50"));
-		configuration.setAllowedMethods(Arrays.asList("GET","POST"));
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost", 
+                                                      "http://localhost:3000",
+                                                      "http://192.168.1.50:3000",
+                                                      "http://192.168.1.50"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        configuration.setAllowCredentials(true);
+        configuration.setAllowedHeaders(Arrays.asList("X-Requested-With", "content-type", "Authorization"));
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration);
 		return source;
@@ -103,7 +108,6 @@ public class UserManagerSecurityConfiguration extends WebSecurityConfigurerAdapt
             request.getSession().removeAttribute("codeValue");
             request.getSession().removeAttribute("codeTime");
             
-            response.setContentType("application/json;charset=utf-8");
             PrintWriter out = response.getWriter();
             out.write("{\"status\":\"ok\",\"msg\":\"login success\"}");
             out.flush();

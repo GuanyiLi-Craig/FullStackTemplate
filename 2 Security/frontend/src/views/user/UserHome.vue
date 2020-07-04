@@ -8,6 +8,7 @@
 // @ is an alias to /src
 import Home from "@/components/user/Home.vue";
 import axios from "axios";
+import { Utils } from "@/utils/utils";
 
 export default {
   name: "UserHome",
@@ -22,10 +23,9 @@ export default {
   },
   async mounted() {
     const username = this.$route.params.username;
-    const url = `/api/user/getUserInfo/` + username;
-    const res = await axios.get(url, {
-      withCredentials: true
-    });
+    const url = Utils.getUrl("user", "getUserInfo") + username;
+    const headers = Utils.getHeader(username);
+    const res = await axios.get(url, { headers: headers });
     this.userInfo = {
       username: username,
       modifiedTime: res.data.modifiedTime,

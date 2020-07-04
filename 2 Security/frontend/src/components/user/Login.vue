@@ -20,9 +20,10 @@
 </template>
 
 <script lang="ts">
-import { Prop, Vue, Component } from 'vue-property-decorator';
+import { Prop, Vue, Component } from "vue-property-decorator";
 import axios from "axios";
-import { LoginForm } from "@/utils/user/interfaces"
+import { LoginForm } from "@/utils/user/interfaces";
+import { Utils } from "@/utils/utils";
 
 @Component
 export default class Login extends Vue {
@@ -31,18 +32,24 @@ export default class Login extends Vue {
 
   public async handleLogin() {
     console.log(this.loginForm);
-    const url = `/api/login?username=`
-                + this.loginForm.username
-                + `&password=`
-                + this.loginForm.password;
-    const res = await axios.post(url, {
-      withCredentials: true
-    });
-    console.log(res.data);
-    this.$router.push({name: 'UserHome', params: {username: this.loginForm.username}});
+    const url = Utils.getLoginUrl(
+      this.loginForm.username,
+      this.loginForm.password
+    );
+    const headers = Utils.getHeader(this.loginForm.username);
+    axios.defaults.withCredentials=true;
+    const res = await axios.post(url);
+    console.log(res);
+    if (res.status === 200) {
+      this.$router.push({
+        name: "UserHome",
+        params: { username: this.loginForm.username }
+      });
+    } else {
+      this.$router.push({ name: "UserLogin" });
+    }
   }
 }
 </script>
 
-<style lang="scss">
-</style>
+<style lang="scss"></style>
