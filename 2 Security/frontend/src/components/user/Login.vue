@@ -36,8 +36,6 @@ export default class Login extends Vue {
       this.loginForm.username,
       this.loginForm.password
     );
-    const headers = Utils.getHeader(this.loginForm.username);
-    axios.defaults.withCredentials=true;
     const res = await axios.post(url);
     console.log(res);
     if (res.status === 200) {

@@ -22,11 +22,14 @@ export default class Home extends Vue {
   public async refresh() {
     console.log(this.userInfo);
     const url = Utils.getUrl("user", "getUserInfo") + this.userInfo.username;
-    const headers = Utils.getHeader(this.userInfo.username);
-    console.log(headers);
-    axios.defaults.withCredentials=true;
-    this.userInfo = await axios.get(url);
-    console.log(this.userInfo);
+    const res = await axios.get(url);
+    const newUserInfo = {
+      username: res.data.username,
+      modifiedTime: res.data.modifiedTime,
+      role: res.data.role
+    };
+    console.log(newUserInfo);
+    this.$emit("update:userInfo", newUserInfo);
   }
 }
 </script>
