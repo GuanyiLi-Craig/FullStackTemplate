@@ -1,6 +1,10 @@
 export class Utils {
   private static URL_PREFIX = "/api/";
 
+  public static getSignupUrl(): string {
+    return Utils.URL_PREFIX + `signup`;
+  }
+
   public static getLoginUrl(username: string, password: string): string {
     return (
       Utils.URL_PREFIX + `login?username=` + username + `&password=` + password
@@ -8,9 +12,7 @@ export class Utils {
   }
 
   public static getLogoutUrl(): string {
-    return (
-      Utils.URL_PREFIX + `logout`
-    );
+    return Utils.URL_PREFIX + `logout`;
   }
 
   public static getUrl(category: string, request: string): string {

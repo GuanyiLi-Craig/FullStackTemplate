@@ -11,11 +11,9 @@ import axios from "axios";
 export default {
   name: "UserLogout",
   async mounted() {
-    const username = this.$route.params.username;
     const url = Utils.getLogoutUrl();
     const res = await axios.get(url);
     console.log(res);
-    
-  },
+  }
 };
 </script>
