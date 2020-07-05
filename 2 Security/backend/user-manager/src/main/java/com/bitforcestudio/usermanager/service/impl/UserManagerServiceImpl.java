@@ -18,26 +18,11 @@ public class UserManagerServiceImpl implements UserManagerService {
     private UserDao userDao;
 
     @Override
-    public User login(String username, String password) {
-        User user = userDao.getUserByUserName(username);
-        if (user.getPassword().equals(password)) {
-            return user;
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public String logout(String username) {
-        return username + " logout";
-    }
-
-    @Override
     public String signup(String username, String password) {
         System.out.println(username + "  " + password);
-        int id = userDao.createNewUser(new User(username, password));
+        int result = userDao.createNewUser(new User(username, password));
 
-        return Integer.toString(id);
+        return Integer.toString(result);
     }
 
     @Override

@@ -6,10 +6,6 @@ public interface UserManagerService {
 
     public String signup(String username, String password);
 
-    public User login(String username, String password);
-
-    public String logout(String username);
-
     public User getUserbyUserName(String username);
 
     public String initialize();

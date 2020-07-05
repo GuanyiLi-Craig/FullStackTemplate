@@ -21,26 +21,25 @@ public class MyCorsFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
         throws IOException, ServletException {
-    HttpServletRequest req = (HttpServletRequest)request;
-    HttpServletResponse resp = (HttpServletResponse)response;
-    
-    String origin = req.getHeader("Origin");
-    if(origin == null) {
-        origin = req.getHeader("Referer");
-    }
-    resp.setHeader("Access-Control-Allow-Origin", origin);
-    resp.setHeader("Access-Control-Allow-Credentials", "true");
-    
-    if(RequestMethod.OPTIONS.toString().equals(req.getMethod())) {
-        String allowMethod = req.getHeader("Access-Control-Request-Method");
-        String allowHeaders = req.getHeader("Access-Control-Request-Headers");
-        resp.setHeader("Access-Control-Max-Age", "86400");
-        resp.setHeader("Access-Control-Allow-Methods", allowMethod);
-        resp.setHeader("Access-Control-Allow-Headers", allowHeaders);
-        return;
-    }
+        HttpServletRequest req = (HttpServletRequest)request;
+        HttpServletResponse resp = (HttpServletResponse)response;
+        
+        String origin = req.getHeader("Origin");
+        if(origin == null) {
+            origin = req.getHeader("Referer");
+        }
+        resp.setHeader("Access-Control-Allow-Origin", origin);
+        resp.setHeader("Access-Control-Allow-Credentials", "true");
+        
+        if(RequestMethod.OPTIONS.toString().equals(req.getMethod())) {
+            String allowMethod = req.getHeader("Access-Control-Request-Method");
+            String allowHeaders = req.getHeader("Access-Control-Request-Headers");
+            resp.setHeader("Access-Control-Max-Age", "86400");
+            resp.setHeader("Access-Control-Allow-Methods", allowMethod);
+            resp.setHeader("Access-Control-Allow-Headers", allowHeaders);
+            return;
+        }
 
-    chain.doFilter(request, response);
-}
-    
+        chain.doFilter(request, response);
+    }
 }

@@ -229,7 +229,7 @@ This is the final step to enable database backed user services auth.
 * Add a `DaoAuthenticationProvider` auth provider as a bean
 * Replace `inMemoryAuthentication` by auth provider
 * Update authorize request roles. 
-    * give `\login` public permission
+    * give `\login` and `\signup` public permission
     * limit `\user\**` permission to logined user. 
 
 `configuration\UserManagerSecurityConfiguration.java`
@@ -251,6 +251,7 @@ public class UserManagerSecurityConfiguration extends WebSecurityConfigurerAdapt
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
             .antMatchers("/login**").permitAll()
+            .antMatchers("/signup**").permitAll()
             .antMatchers("/user/**").authenticated()
             .and()
             .csrf().disable()
@@ -276,6 +277,174 @@ public class UserManagerSecurityConfiguration extends WebSecurityConfigurerAdapt
 ```
 
 We can simply add a user in database and test the login by "https://localhost:8443/login". 
+
+### One More Thing on CORS
+
+Cors is a pure pain when developing locally. Here we used the cookie to carry auth, so that we need to enable the "Access-Control-Allow-Credentials" in sever side. 
+
+While we are also going to use the Vue as front end framework, so we need to add a proper filter for Cors to the Spring, like the following,
+
+```java
+@Component
+@Order(1)
+public class MyCorsFilter implements Filter {
+
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+        throws IOException, ServletException {
+        HttpServletRequest req = (HttpServletRequest)request;
+        HttpServletResponse resp = (HttpServletResponse)response;
+        
+        String origin = req.getHeader("Origin");
+        if(origin == null) {
+            origin = req.getHeader("Referer");
+        }
+        resp.setHeader("Access-Control-Allow-Origin", origin);
+        resp.setHeader("Access-Control-Allow-Credentials", "true");
+        
+        if(RequestMethod.OPTIONS.toString().equals(req.getMethod())) {
+            String allowMethod = req.getHeader("Access-Control-Request-Method");
+            String allowHeaders = req.getHeader("Access-Control-Request-Headers");
+            resp.setHeader("Access-Control-Max-Age", "86400");
+            resp.setHeader("Access-Control-Allow-Methods", allowMethod);
+            resp.setHeader("Access-Control-Allow-Headers", allowHeaders);
+            return;
+        }
+
+        chain.doFilter(request, response);
+    }
+}
+```
+
+### Add Sign Up Method
+
+Add the following code to handle the signup post 
+
+`controller\UserManagerController.java`
+```java
+    @PostMapping(value = "/signup")
+    public String signup(@RequestBody UserBasic userBasic) {
+        log.info(userBasic.getUsername());
+        return userManagerService.signup(userBasic.getUsername(), 
+                                         passwordEncoder.encode(userBasic.getPassword()));
+    }
+```
+
+where the UserBasic only has two members, like following
+
+`entities\UserBasic.java`
+```java
+@AllArgsConstructor
+@Getter
+public class UserBasic {
+    private String username;
+    private String password;
+}
+```
+
+### Add GetUserInfo
+
+In UserManagerController, add the following code to handle the GetUserInfo method, which will return the user detail. Remeber, after we implement the auth, every request start with `/user/` has to be authenticated. 
+
+`controller\UserManagerController.java`
+```java
+    @GetMapping(value = "/user/getUserInfo/{username}")
+    public Object getUserInfo(@PathVariable("username") String username) {
+        log.info("get user info " + username);
+        User user = userManagerService.getUserbyUserName(username);
+        
+        UserInfo userInfo = new UserInfo(user.getUserName(), user.getModifiedTime().toString(), user.getRoles().toString());
+        return userInfo;
+    }
+```
+
+We also defined a Class called UserInfo which contains user information which can be safely send to the client. 
+
+`entities\UserInfo.java`
+```java
+@Getter
+@Setter
+@AllArgsConstructor
+public class UserInfo {
+    private String username;
+    private String modifiedTime;
+    private String role;
+}
+```
+
+### Test Backend APIs
+
+So far, we've already implement three RESTful api with Spring security. 
+
+* POST: https://localhost:8443/login
+    * Query Params:
+        * username: string
+        * password: string
+* POST: https://localhost:8443/signup
+    * Data:
+        * username: string
+        * password: string
+* GET:  https://localhost:8443/user/getUserInfo/<userinfo>
+
+We can test these with Postman.
+
+1. Test `signup` api
+
+    1. Select POST and input the URL: https://localhost:8443/signup 
+    2. Select Headers tab and input `Content-Type | application/json;charset=UTF-8` which override the default setings. 
+    3. Select Body tab and input following JSON object
+
+```json
+{
+    "username": "a",
+    "password": "a"
+}
+```
+
+The return value should be 1, which indicate signup successfully. 
+
+2. Test `getuserinfo` api
+
+    1. Select GET and input the URL: https://localhost:8443/user/getUserInfo/a , here we want to get user info of "a"
+    2. Because we haven't logged in, so the reponse ask us to login first
+
+```json
+{
+    "timestamp": "2020-07-05T14:58:07.772+00:00",
+    "status": 404,
+    "error": "Not Found",
+    "message": "",
+    "path": "/login"
+}
+``` 
+
+3. Test `login` api
+
+    1. Select POST and input the URL: https://localhost:8443/login
+    2. Add the Query Params: `username | a` and `password | a`
+    3. The response will show success, and a cookie should be included as well. In response Headers tab, it should show a row like
+
+```
+Set-Cookie: JSESSIONID=XXXXXXXXXXxxxxxXXXXXXXX; Path=/; Secure; HttpOnly
+```
+Here `Path=/` means this cookie can be used from root. `HttpOnly` means this cookies is not accessable from script, like javascript. Now let's copy this cookie somewhere, we may need it in the next test.  
+
+
+4. Test `getuserinfo` api again
+
+After we logged in, we obtained a cookie, which actually is a session id. This session id is a unique id autogenerated by the backend service (Spring security) and this session id will be used to handel the user auth, expiration time and etc. Now we should be able to get user info. 
+
+    1. Select GET and input the URL: https://localhost:8443/user/getUserInfo/a , here we want to get user info of "a"
+    2. Select request Headers tab and double check the cookies value, if it doesn't match the Cookie we obtained, replace the cookie with what we just obtained. 
+    3. The response should show the user info with username, modified time and role, like following 
+
+```json
+{
+    "username": "a",
+    "modifiedTime": "Sun Jul 05 15:49:54 BST 2020",
+    "role": "USER"
+}
+```
 
 ## Front End
 
