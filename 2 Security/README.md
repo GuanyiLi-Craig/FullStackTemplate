@@ -372,6 +372,93 @@ public class UserInfo {
 }
 ```
 
+### Make Everything RESTful
+
+By now we uses Spring buildin login method, however what we want is the pure RESTful APIs. Now let's change the configuration to disable http based login and enable logout. Meanwhile, we will add the login sucess/failed and logout handler. 
+
+1. Disable http based login page and enable logout in configuration
+
+`configuration\UserManagerSecurityConfiguration.java`
+```java
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.authorizeRequests()
+            .antMatchers("/login**").permitAll()
+            .antMatchers("/signup**").permitAll()
+            .antMatchers("/user/**").authenticated()
+            .formLogin().loginPage("/login")
+                        .successHandler(new AuthSuccessHandler())
+                        .failureHandler(new AuthFailHandler())
+                        .loginProcessingUrl("/login")
+                        .and()
+                        .logout().logoutSuccessHandler(new LogoutSuccessHandler())
+                        .logoutUrl("/logout")
+            .and()
+            .httpBasic().disable()
+            .csrf().disable()
+            .cors();
+    }
+```
+
+2. Handlers methods
+
+`configuration\UserManagerSecurityConfiguration.java`
+```java
+    // success handler
+    private class AuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+        @Override
+        public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+            
+            log.info("user [" + SecurityContextHolder.getContext().getAuthentication().getPrincipal() +"] login successful");
+            // remove session code after login successfully
+            request.getSession().removeAttribute("codeValue");
+            request.getSession().removeAttribute("codeTime");
+            
+            PrintWriter out = response.getWriter();
+            out.write("{\"status\":\"ok\",\"msg\":\"login success\"}");
+            out.flush();
+            out.close();
+        }
+    }
+
+    // failed handler
+    private class AuthFailHandler extends SimpleUrlAuthenticationFailureHandler {
+        @Override
+        public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+            //remove session code after login failed
+            request.getSession().removeAttribute("codeValue");
+            request.getSession().removeAttribute("codeTime");
+
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            PrintWriter out = response.getWriter();
+            out.write("{\"status\":\"error\",\"msg\":\"login failed\"}");
+            out.flush();
+            out.close();
+        }
+    }
+
+    // customize exceptions
+    public class UnauthorizedEntryPoint implements AuthenticationEntryPoint {
+        @Override
+        public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+            response.sendError(HttpStatus.UNAUTHORIZED.value(),authException.getMessage());
+        }
+
+    }
+    
+    // define log out message
+    private class LogoutSuccessHandler extends SimpleUrlLogoutSuccessHandler  {
+
+        public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response,
+                Authentication authentication) throws IOException, ServletException {
+            PrintWriter out = response.getWriter();
+            out.write("{\"status\":\"ok\",\"msg\":\"logout success\"}");
+            out.flush();
+            out.close();
+        }
+    }
+```
+
 ### Test Backend APIs
 
 So far, we've already implement three RESTful api with Spring security. 
