@@ -461,7 +461,7 @@ By now we uses Spring buildin login method, however what we want is the pure RES
 
 ### Test Backend APIs
 
-So far, we've already implement three RESTful api with Spring security. 
+So far, we've already implement four RESTful api with Spring security. 
 
 * POST: https://localhost:8443/login
     * Query Params:
@@ -472,6 +472,7 @@ So far, we've already implement three RESTful api with Spring security.
         * username: string
         * password: string
 * GET:  https://localhost:8443/user/getUserInfo/<userinfo>
+* GET:  https://localhost:8443/logout
 
 We can test these with Postman.
 
@@ -532,5 +533,269 @@ After we logged in, we obtained a cookie, which actually is a session id. This s
 }
 ```
 
+5. Test `logout` api
+
+    1. Select GET and input the URL: https://localhost:8443/logout 
+    2. The response will show the logout successfully message. 
+    3. To test logout, using `getuserinfo` api again, it will fail on retrive user info and try to direct to login page. 
+
 ## Front End
 
+I am a noob to the FE. Here I am focusing on the basic funcationalities and configs. 
+
+Let's finish the configuration for HTTPS and CORS first. 
+
+### Configuraiton
+
+There are two steps, first step is to add the vue configuraiton file `vue.config.js` to the root directory, the content is
+
+`vue.config.js`
+```javascript
+module.exports = {
+  configureWebpack: {
+    devServer: {
+      proxy: {
+        "/api": {
+          target: "https://localhost:8443",
+          changeOrigin: true,
+          ws: true,
+          pathRewrite: {
+            "^/api": ""
+          }
+        }
+      },
+      https: true,
+      headers: {
+        "Access-Control-Allow-Origin": "http://localhost:3000",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Methods":
+          "GET, POST, PUT, DELETE, PATCH, OPTIONS",
+        "Access-Control-Allow-Headers":
+          "X-Requested-With, content-type, Authorization"
+      }
+    }
+  }
+};
+```
+Because we are going to use CORS auth, so we have to change `axios` default config in `main.ts` (I use typescript)
+
+`main.ts`
+```typescript
+import Vue from "vue";
+import App from "./App.vue";
+import router from "./router";
+import store from "./store";
+import axios from "axios";
+import VueCookies from "vue-cookies";
+
+Vue.use(VueCookies);
+Vue.config.productionTip = false;
+// change axios default to include credencials (cookies in this case)
+axios.defaults.withCredentials = true;
+Vue.prototype.$axios = axios;
+
+new Vue({
+  router,
+  store,
+  render: h => h(App)
+}).$mount("#app");
+
+```
+
+### API Impl
+
+Here we need 4 APIs, which are
+
+* signup
+* login
+* getuserinfo
+* logout
+
+Here I just show how to login and the others are the same. Correct me if I am wrong, I found the steps to implement new API are 
+
+1. Create a XxxxComponent.vue in component directory
+    1. this compounent should contain most functionalities of this specific component
+2. Create a XxxxView.vue in view directory
+    1. this view should only handle the router input and the shared component, like header, footer and sider. 
+3. Add path in router, expose the link in header if necessary. 
+4. Add object interface if necessary
+
+Here is the code
+
+* Component
+
+`components\user\Login.vue`
+```html
+<template>
+  <div id="user-login-form">
+    <h3 class="title">Login Form</h3>
+    <input
+      ref="username"
+      v-model="loginForm.username"
+      placeholder="Username"
+      name="username"
+      type="text"
+    />
+    <input
+      ref="password"
+      v-model="loginForm.password"
+      placeholder="Password"
+      name="password"
+    />
+
+    <button v-on:click="handleLogin()">Login</button>
+  </div>
+</template>
+
+<script lang="ts">
+import { Prop, Vue, Component } from "vue-property-decorator";
+import axios from "axios";
+import { LoginForm } from "@/utils/user/interfaces";
+import { Utils } from "@/utils/utils";
+
+@Component
+export default class Login extends Vue {
+  @Prop()
+  private loginForm!: LoginForm;
+
+  public async handleLogin() {
+    console.log(this.loginForm);
+    const url = Utils.getLoginUrl(
+      this.loginForm.username,
+      this.loginForm.password
+    );
+    const res = await axios.post(url);
+    console.log(res);
+    if (res.status === 200) {
+      this.$router.push({
+        name: "UserHome",
+        params: { username: this.loginForm.username }
+      });
+    } else {
+      this.$router.push({ name: "UserLogin" });
+    }
+  }
+}
+</script>
+```
+
+* views
+
+`views\user\UserLogin.vue`
+```html
+<template>
+  <div class="login">
+    <Login v-bind:loginForm="this.loginForm" />
+  </div>
+</template>
+
+<script>
+// @ is an alias to /src
+import Login from "@/components/user/Login.vue";
+
+export default {
+  name: "UserLogin",
+  data() {
+    return {
+      loginForm: {
+        username: "",
+        password: ""
+      }
+    };
+  },
+  components: {
+    Login
+  }
+};
+</script>
+```
+
+* router
+
+`router\index.ts`
+```typescript
+import Vue from "vue";
+import VueRouter, { RouteConfig } from "vue-router";
+import Home from "../views/Home.vue";
+import About from "../views/About.vue";
+import UserLogin from "../views/user/UserLogin.vue";
+
+Vue.use(VueRouter);
+
+const routes: Array<RouteConfig> = [
+  {
+    path: "/",
+    name: "Home",
+    component: Home
+  },
+  {
+    path: "/about",
+    name: "About",
+    component: About
+  },
+  {
+    path: "/user/login",
+    name: "UserLogin",
+    component: UserLogin
+  }
+];
+
+const router = new VueRouter({
+  mode: "history",
+  base: process.env.BASE_URL,
+  routes
+});
+
+export default router;
+```
+
+* interfaces & utils
+
+`utils\user\interfaces.ts`
+```typescript
+export interface LoginForm {
+  username: string;
+  password: string;
+}
+
+export interface SignupForm {
+  username: string;
+  password: string;
+}
+
+export interface UserInfo {
+  username: string;
+  modifiedTime: string;
+  role: string;
+}
+
+```
+
+`utils\utils.ts`
+```typescript
+export class Utils {
+  private static URL_PREFIX = "/api/";
+
+  public static getSignupUrl(): string {
+    return Utils.URL_PREFIX + `signup`;
+  }
+
+  public static getLoginUrl(username: string, password: string): string {
+    return (
+      Utils.URL_PREFIX + `login?username=` + username + `&password=` + password
+    );
+  }
+
+  public static getLogoutUrl(): string {
+    return Utils.URL_PREFIX + `logout`;
+  }
+
+  public static getUrl(category: string, request: string): string {
+    return (
+      Utils.URL_PREFIX +
+      (category.length === 0 ? "" : category + "/") +
+      (request.length === 0 ? "" : request + "/")
+    );
+  }
+}
+```
