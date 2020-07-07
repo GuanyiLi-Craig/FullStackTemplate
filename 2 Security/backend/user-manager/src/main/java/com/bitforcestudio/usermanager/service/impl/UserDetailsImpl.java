@@ -30,12 +30,14 @@ public class UserDetailsImpl implements UserDetails {
 
         // get list of permissions
         user.getPermissionsList().forEach(p -> {
-            authorities.add(new SimpleGrantedAuthority(p));
+            GrantedAuthority authority = new SimpleGrantedAuthority(p);
+            authorities.add(authority);
         });
 
         // get list of roles
         user.getRolesList().forEach(r -> {
-            authorities.add(new SimpleGrantedAuthority(r));
+            GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + r);
+            authorities.add(authority);
         });
         System.out.println(authorities);
         return authorities;
