@@ -1,0 +1,23 @@
+server:
+  port: 8443
+  ssl:
+    enabled: true
+    key-store: src/main/resources/statics/secret/bitforcesecurity.p12
+    key-store-password: bitforcesecurity
+    key-store-type: PKCS12
+    key-alias: bitforcesecurity
+    key-password: bitforcesecurity
+ 
+
+spring:
+  application:
+    name: user-manager-service
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost/spring
+    username: root
+    password: 123456
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.bitforcestudio.usermanager.entities
