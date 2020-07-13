@@ -37,7 +37,6 @@ public class UserManagerController {
                                          passwordEncoder.encode(userBasic.getPassword()));
     }
 
-
     @GetMapping(value = "/user/getUserInfo/{username}")
     public Object getUserInfo(@PathVariable("username") String username) {
         log.info("get user info " + username);

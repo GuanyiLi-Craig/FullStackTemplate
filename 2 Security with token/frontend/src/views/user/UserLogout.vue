@@ -13,7 +13,7 @@ export default {
   async mounted() {
     const url = Utils.getLogoutUrl();
     const headers = Utils.getHeaders();
-    const res = await axios.get(url, headers);
+    const res = await axios.post(url, {}, headers);
     localStorage.removeItem("Authorization");
     console.log(res);
   }
