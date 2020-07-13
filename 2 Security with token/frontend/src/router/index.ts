@@ -49,4 +49,18 @@ const router = new VueRouter({
   routes
 });
 
+router.beforeEach((to, from, next) => {
+  if (to.path === "/user/login") {
+    next();
+  } else {
+    const token = localStorage.getItem("Authorization");
+
+    if (token === null || token === "") {
+      next("/user/login");
+    } else {
+      next();
+    }
+  }
+});
+
 export default router;

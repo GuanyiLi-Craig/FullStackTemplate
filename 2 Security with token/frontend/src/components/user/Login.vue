@@ -30,15 +30,20 @@ export default class Login extends Vue {
   @Prop()
   private loginForm!: LoginForm;
 
+  private userToken!: string;
+
   public async handleLogin() {
     console.log(this.loginForm);
-    const url = Utils.getLoginUrl(
-      this.loginForm.username,
-      this.loginForm.password
-    );
-    const res = await axios.post(url);
+    const url = Utils.getLoginUrl();
+    const data = {
+      username: this.loginForm.username,
+      password: this.loginForm.password
+    };
+    const res = await axios.post(url, data);
     console.log(res);
     if (res.status === 200) {
+      this.userToken = res.headers.authorization;
+      localStorage.setItem("Authorization", this.userToken);
       this.$router.push({
         name: "UserHome",
         params: { username: this.loginForm.username }

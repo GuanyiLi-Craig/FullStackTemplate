@@ -12,7 +12,9 @@ export default {
   name: "UserLogout",
   async mounted() {
     const url = Utils.getLogoutUrl();
-    const res = await axios.get(url);
+    const headers = Utils.getHeaders();
+    const res = await axios.get(url, headers);
+    localStorage.removeItem("Authorization");
     console.log(res);
   }
 };

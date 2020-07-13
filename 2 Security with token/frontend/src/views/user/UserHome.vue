@@ -24,7 +24,8 @@ export default {
   async mounted() {
     const username = this.$route.params.username;
     const url = Utils.getUrl("user", "getUserInfo") + username;
-    const res = await axios.get(url);
+    const headers = Utils.getHeaders();
+    const res = await axios.get(url, headers);
     this.userInfo = {
       username: username,
       modifiedTime: res.data.modifiedTime,

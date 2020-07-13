@@ -5,10 +5,8 @@ export class Utils {
     return Utils.URL_PREFIX + `signup`;
   }
 
-  public static getLoginUrl(username: string, password: string): string {
-    return (
-      Utils.URL_PREFIX + `login?username=` + username + `&password=` + password
-    );
+  public static getLoginUrl(): string {
+    return Utils.URL_PREFIX + `login`;
   }
 
   public static getLogoutUrl(): string {
@@ -21,5 +19,14 @@ export class Utils {
       (category.length === 0 ? "" : category + "/") +
       (request.length === 0 ? "" : request + "/")
     );
+  }
+
+  public static getHeaders() {
+    const authz = localStorage.getItem("Authorization");
+    return {
+      headers: {
+        Authorization: authz
+      }
+    }
   }
 }

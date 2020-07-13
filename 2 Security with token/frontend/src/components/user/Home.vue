@@ -22,7 +22,8 @@ export default class Home extends Vue {
   public async refresh() {
     console.log(this.userInfo);
     const url = Utils.getUrl("user", "getUserInfo") + this.userInfo.username;
-    const res = await axios.get(url);
+    const headers = Utils.getHeaders();
+    const res = await axios.get(url, headers);
     const newUserInfo = {
       username: res.data.username,
       modifiedTime: res.data.modifiedTime,
