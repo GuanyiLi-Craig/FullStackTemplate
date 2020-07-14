@@ -41,6 +41,8 @@ DAO actually a miss leading in this project. Mapper is more appropriate
 
 ## Summary of the Structure
 
+![Microservice](../static/Microservice%20inner.png)
+
 * configuration
     * this directory should only contains configurations.
     * `ServerConfig` is used to config the SSL connection
