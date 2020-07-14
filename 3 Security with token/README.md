@@ -102,8 +102,57 @@ None
 ## Containerize 
 
 ### Dockerfile
+`backend/user-manager/Dockerfile`
+```dockerfile
+FROM openjdk:11-jre-slim
+
+EXPOSE 8002
+
+RUN mkdir /app
+
+COPY user-manager/build/libs/*.jar /app/user-manager.jar
+
+ENTRYPOINT ["java", "-XX:+UnlockExperimentalVMOptions", "-Djava.security.egd=file:/dev/./urandom","-jar","/app/user-manager.jar"]
+```
 
 ### docker-compose.yml
+
+```yaml
+version: "3.5"
+
+services:
+  mysql-docker-container:
+    image: mysql:latest
+    networks:
+      - spring-cloud-network
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456
+      - MYSQL_DATABASE=spring
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=123456
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3306"]
+      interval: 1s
+      timeout: 1s
+      retries: 60
+  user-manager:
+    image: user-manager:latest
+    build:
+      context: ./
+      dockerfile: user-manager/Dockerfile
+    depends_on:
+      - mysql-docker-container
+    ports:
+      - 8002:8002
+      - 8443:8443
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-docker-container:3306/spring?autoReconnect=true&allowPublicKeyRetrieval=true&useSSL=false
+    networks:
+      - spring-cloud-network
+networks:
+  spring-cloud-network:
+    driver: bridge
+```
 
 ## Test
 
