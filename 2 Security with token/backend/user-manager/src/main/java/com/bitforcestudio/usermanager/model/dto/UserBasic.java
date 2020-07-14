@@ -1,4 +1,4 @@
-package com.bitforcestudio.usermanager.entities;
+package com.bitforcestudio.usermanager.model.dto;
 
 public class UserBasic {
     private String username;

@@ -1,4 +1,4 @@
-package com.bitforcestudio.usermanager.entities;
+package com.bitforcestudio.usermanager.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

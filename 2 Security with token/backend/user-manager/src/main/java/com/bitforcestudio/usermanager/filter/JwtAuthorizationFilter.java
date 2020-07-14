@@ -8,8 +8,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.bitforcestudio.usermanager.dao.UserDao;
-import com.bitforcestudio.usermanager.entities.User;
+import com.bitforcestudio.usermanager.mapper.UserMapper;
+import com.bitforcestudio.usermanager.model.entity.User;
 import com.bitforcestudio.usermanager.service.impl.UserDetailsImpl;
 import com.bitforcestudio.usermanager.utils.JwtProperties;
 
@@ -22,11 +22,11 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter{
-    private UserDao userDao;
+    private UserMapper userMapper;
 
-    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, UserDao userDao) {
+    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, UserMapper userMapper) {
         super(authenticationManager);
-        this.userDao = userDao;
+        this.userMapper = userMapper;
     }
 
     @Override
@@ -62,7 +62,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter{
             // Search in the DB if we find the user by token subject (username)
             // If so, then grab user details and create spring auth token using username, pass, authorities/roles
             if (userName != null) {
-                User user = userDao.getUserByUserName(userName);
+                User user = userMapper.getUserByUserName(userName);
                 UserDetailsImpl principal = new UserDetailsImpl(user);
                 UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userName, null, principal.getAuthorities());
                 return auth;

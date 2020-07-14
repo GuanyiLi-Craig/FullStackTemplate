@@ -52,6 +52,8 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
   if (to.path === "/user/login") {
     next();
+  } else if (to.path === "/user/signup") {
+    next();
   } else {
     const token = localStorage.getItem("Authorization");
 

@@ -7,9 +7,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.bitforcestudio.usermanager.dao.UserDao;
 import com.bitforcestudio.usermanager.filter.JwtAuthenticationFilter;
 import com.bitforcestudio.usermanager.filter.JwtAuthorizationFilter;
+import com.bitforcestudio.usermanager.mapper.UserMapper;
 import com.bitforcestudio.usermanager.service.impl.UserDetailsServiceImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,7 @@ public class UserManagerSecurityConfiguration extends WebSecurityConfigurerAdapt
     private UserDetailsServiceImpl userDetailsService;
 
     @Autowired
-    private UserDao userDao;
+    private UserMapper userMapper;
 
     @Bean
     PasswordEncoder passwordEncoder() {
@@ -48,10 +48,11 @@ public class UserManagerSecurityConfiguration extends WebSecurityConfigurerAdapt
             .and()
             // add jwt filters (1. authentication, 2. authorization)
             .addFilter(new JwtAuthenticationFilter(authenticationManager()))
-            .addFilter(new JwtAuthorizationFilter(authenticationManager(), userDao))
+            .addFilter(new JwtAuthorizationFilter(authenticationManager(), userMapper))
             .authorizeRequests()
             .antMatchers("/login**").permitAll()
             .antMatchers("/signup**").permitAll()
+            .antMatchers("/ping**").permitAll()
             .antMatchers("/home").permitAll()
             .antMatchers("/user/**").authenticated()
             .antMatchers("/admin/**").hasRole("ADMIN")

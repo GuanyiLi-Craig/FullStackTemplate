@@ -2,7 +2,7 @@ server:
   port: 8443
   ssl:
     enabled: true
-    key-store: src/main/resources/statics/secret/bitforcesecurity.p12
+    key-store: classpath:statics/secret/bitforcesecurity.p12
     key-store-password: bitforcesecurity
     key-store-type: PKCS12
     key-alias: bitforcesecurity

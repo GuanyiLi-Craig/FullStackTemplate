@@ -1,6 +1,6 @@
 package com.bitforcestudio.usermanager.service;
 
-import com.bitforcestudio.usermanager.entities.User;
+import com.bitforcestudio.usermanager.model.entity.User;
 
 public interface UserManagerService {
 

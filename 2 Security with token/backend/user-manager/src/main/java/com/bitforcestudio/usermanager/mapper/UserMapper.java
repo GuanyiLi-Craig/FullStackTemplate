@@ -1,12 +1,12 @@
-package com.bitforcestudio.usermanager.dao;
+package com.bitforcestudio.usermanager.mapper;
 
-import com.bitforcestudio.usermanager.entities.User;
+import com.bitforcestudio.usermanager.model.entity.User;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 @Mapper
-public interface UserDao {
+public interface UserMapper {
     public boolean createUserTable();
 
     public int createNewUser(User user);

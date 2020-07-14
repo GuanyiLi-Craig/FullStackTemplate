@@ -1,4 +1,4 @@
-package com.bitforcestudio.usermanager.entities;
+package com.bitforcestudio.usermanager.model.entity;
 
 import java.io.Serializable;
 import java.util.ArrayList;

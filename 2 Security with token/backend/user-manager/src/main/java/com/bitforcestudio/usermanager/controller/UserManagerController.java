@@ -1,8 +1,8 @@
 package com.bitforcestudio.usermanager.controller;
 
-import com.bitforcestudio.usermanager.entities.User;
-import com.bitforcestudio.usermanager.entities.UserBasic;
-import com.bitforcestudio.usermanager.entities.UserInfo;
+import com.bitforcestudio.usermanager.model.dto.UserBasic;
+import com.bitforcestudio.usermanager.model.dto.UserInfo;
+import com.bitforcestudio.usermanager.model.entity.User;
 import com.bitforcestudio.usermanager.service.UserManagerService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +44,11 @@ public class UserManagerController {
         
         UserInfo userInfo = new UserInfo(user.getUserName(), user.getModifiedTime().toString(), user.getRoles().toString());
         return userInfo;
+    }
+
+    @GetMapping(value = "/ping")
+    public String ping() {
+        return "pong";
     }
 
     @GetMapping(value = "/user/init")
