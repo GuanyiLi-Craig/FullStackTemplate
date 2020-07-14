@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.bitforcestudio.usermanager.mapper.UserMapper;
 import com.bitforcestudio.usermanager.model.entity.User;
-import com.bitforcestudio.usermanager.service.impl.UserDetailsImpl;
+import com.bitforcestudio.usermanager.model.dto.UserDetailsImpl;
 import com.bitforcestudio.usermanager.utils.JwtProperties;
 
 import org.springframework.security.authentication.AuthenticationManager;

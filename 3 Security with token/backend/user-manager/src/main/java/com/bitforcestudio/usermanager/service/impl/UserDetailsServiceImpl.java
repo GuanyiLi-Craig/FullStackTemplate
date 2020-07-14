@@ -2,6 +2,7 @@ package com.bitforcestudio.usermanager.service.impl;
 
 import com.bitforcestudio.usermanager.mapper.UserMapper;
 import com.bitforcestudio.usermanager.model.entity.User;
+import com.bitforcestudio.usermanager.model.dto.UserDetailsImpl;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

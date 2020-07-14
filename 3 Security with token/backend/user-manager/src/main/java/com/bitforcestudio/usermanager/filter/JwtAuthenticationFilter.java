@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.bitforcestudio.usermanager.model.dto.UserBasic;
-import com.bitforcestudio.usermanager.service.impl.UserDetailsImpl;
+import com.bitforcestudio.usermanager.model.dto.UserDetailsImpl;
 import com.bitforcestudio.usermanager.utils.JwtProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

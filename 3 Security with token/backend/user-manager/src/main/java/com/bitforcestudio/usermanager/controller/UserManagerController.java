@@ -50,9 +50,4 @@ public class UserManagerController {
     public String ping() {
         return "pong";
     }
-
-    @GetMapping(value = "/user/init")
-    public String initializeDatabase() {
-        return serverPort + " ---> " + userManagerService.initialize(); 
-    }
 }

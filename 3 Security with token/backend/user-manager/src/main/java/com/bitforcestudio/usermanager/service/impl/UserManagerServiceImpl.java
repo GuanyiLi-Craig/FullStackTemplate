@@ -26,17 +26,6 @@ public class UserManagerServiceImpl implements UserManagerService {
     }
 
     @Override
-    public String initialize() {
-        Boolean isCreated = userMapper.createUserTable();
-
-        if (isCreated) {
-            return "Create user table";
-        } else {
-            return "User table exists";
-        }
-    }
-
-    @Override
     public User getUserbyUserName(String username) {
         log.info("get user by name " + username);
         return userMapper.getUserByUserName(username);

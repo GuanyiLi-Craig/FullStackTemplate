@@ -1,4 +1,4 @@
-package com.bitforcestudio.usermanager.service.impl;
+package com.bitforcestudio.usermanager.model.dto;
 
 import java.util.ArrayList;
 import java.util.Collection;
