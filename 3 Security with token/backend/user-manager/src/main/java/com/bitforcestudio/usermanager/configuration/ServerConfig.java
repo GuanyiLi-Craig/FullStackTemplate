@@ -7,12 +7,15 @@ import org.apache.catalina.Context;
 import org.apache.catalina.connector.Connector;
 import org.apache.tomcat.util.descriptor.web.SecurityCollection;
 import org.apache.tomcat.util.descriptor.web.SecurityConstraint;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 
 @Configuration
 public class ServerConfig {
+
+    @Value("${server.port}")
+    private int serverPort;
 
     @Bean
     public ServletWebServerFactory servletContainer() {
@@ -45,7 +48,7 @@ public class ServerConfig {
         connector.setScheme("http");
         connector.setPort(8002);
         connector.setSecure(false);
-        connector.setRedirectPort(8443);
+        connector.setRedirectPort(serverPort);
         return connector;
     }
 }

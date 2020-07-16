@@ -156,8 +156,20 @@ networks:
 
 ## Test
 
+we want to test each layer of the service and also sanity check the whole thing. 
+
+### Test with Authn & Authz
+
+
+
 ### Unit Test
 
+#### Controller
+
+#### Service
+
 ### Smoke Test
+
+
 
 ### Integration Test
