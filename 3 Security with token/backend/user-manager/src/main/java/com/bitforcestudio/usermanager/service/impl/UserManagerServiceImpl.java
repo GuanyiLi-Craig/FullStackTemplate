@@ -19,7 +19,6 @@ public class UserManagerServiceImpl implements UserManagerService {
 
     @Override
     public String signup(String username, String password) {
-        System.out.println(username + "  " + password);
         int result = userMapper.createNewUser(new User(username, password));
 
         return Integer.toString(result);

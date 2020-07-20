@@ -11,4 +11,11 @@ public class UserInfo {
     private String username;
     private String modifiedTime;
     private String role;
+
+    @Override
+    public String toString() {
+        return "username: " + username +
+            ", modifiedTime: " + modifiedTime + 
+            ", role: " + role;
+    }
 }
