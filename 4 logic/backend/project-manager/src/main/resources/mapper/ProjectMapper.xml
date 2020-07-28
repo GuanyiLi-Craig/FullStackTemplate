@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bitforcestudio.projectmanager.mapper.ProjectMapper">
+<!--
+    public boolean createProjectTable();
+
+    public int createNewProject(Project project);
+
+    public boolean removeProject(String projectId);
+
+    public int updateProject(Project project);
+
+    public Project getProjectByInnerId(@Param("id") Integer id);
+
+    public Project getProjectByProjectId(@Param("projectId") String projectId);
+
+    public Project[] getProjectsByOwnerId(@Param("ownerId") Integer ownerId);
+
+    public Project[] getProjectByViewerId(@Param("viewerId") Integer viewerId);
+-->
+
+    <sql id="createProjectTable">
+        create table if not exists project(
+            id INT UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY,
+            project_id VARCHAR(32) UNIQUE KEY NOT NULL,
+            project_name CHAR(128) NOT NULL,
+            project_detail TEXT,
+            owner_id INT NOT NULL,
+            viewers_id LIST,
+            is_archived BOOLEAN,
+            modified_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        ) engine=innodb;
+    </sql>
+
+
+    <insert id="createNewProject" parameterType="com.bitforcestudio.projectmanager.model.entity.Project"
+            useGeneratedKeys="true" keyProperty="projectId">
+        insert into project(project_id, project_name, project_detail, owner_id, viewers_id, is_archived)
+        values(#{projectId}, #{projectName}, #{projectDetail}, #{ownerId}, #{viewersId}, #{isArchived});
+    </insert>
+
+
+    <delete id="removeProject" parameterType="Integer">
+        delete from project where id=#{id};
+    </delete>
+
+
+    <update id="updateProject" parameterType="com.bitforcestudio.projectmanager.model.entity.Project"
+            useGeneratedKeys="true" keyProperty="projectId">
+        update user set project_name=#{projectName} project_detail=#{projectDetail}
+                        viewers_id=#{viewersId} is_archived=#{isArchived}
+        where project_id=#{projectId};
+    </update>
+
+
+    <select id="getProjectByInnerId" parameterType="Integer" resultMap="ProjectResultMap">
+        select * from project where id=#{id};
+    </select>
+
+
+    <select id="getProjectByProjectId" parameterType="String" resultMap="ProjectResultMap">
+        select * from project where project_id=#{projectId};
+    </select>
+
+    <select id="getProjectsByOwnerId" parameterType="ownerId" resultMap="ProjectResultMap">
+        select * from project where owner_id=#{ownerId};
+    </select>
+
+    <select id="getProjectByViewerId" parameterType="viewerId" resultMap="ProjectResultMap">
+        select * from project where owner_id=#{viewerId};
+    </select>
+
+    <resultMap id="ProjectResultMap" type="com.bitforcestudio.projectmanager.model.entity.Project">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <id column="project_id" property="projectId" jdbcType="VARCHAR"/>
+        <id column="project_name" property="projectName" jdbcType="CHAR"/>
+        <id column="project_detail" property="projectDetail" jdbcType="TEXT"/>
+        <id column="owner_id" property="ownerId" jdbcType="INTEGER"/>
+        <id column="viewers_id" property="viewersId" jdbcType="LIST"/>
+        <id column="is_archived" property="isArchived" jdbcType="BOOLEAN"/>
+        <id column="modified_time" property="modifiedTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+</mapper>

@@ -9,7 +9,7 @@ public interface ProjectManagerService {
 
     // get
     public ProjectDTO getProjectById(String projectId);
-    public ProjectDTO getProjectsByUser(String userId);
+    public ProjectDTO[] getProjectsByUser(Integer userId);
 
     // update
     public ProjectDTO updateProject(ProjectDTO project);
