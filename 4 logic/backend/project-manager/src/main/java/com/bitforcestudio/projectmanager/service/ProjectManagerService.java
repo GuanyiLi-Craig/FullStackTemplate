@@ -1,11 +1,12 @@
 package com.bitforcestudio.projectmanager.service;
 
+import com.bitforcestudio.projectmanager.model.dto.ProjectBasic;
 import com.bitforcestudio.projectmanager.model.dto.ProjectDTO;
 
 public interface ProjectManagerService {
     
     // create
-    public ProjectDTO createProject(ProjectDTO project);
+    public ProjectDTO createProject(ProjectBasic project);
 
     // get
     public ProjectDTO getProjectById(String projectId);

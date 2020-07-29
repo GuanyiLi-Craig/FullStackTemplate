@@ -1,6 +1,7 @@
 package com.bitforcestudio.projectmanager.service.impl;
 
 import com.bitforcestudio.projectmanager.mapper.ProjectMapper;
+import com.bitforcestudio.projectmanager.model.dto.ProjectBasic;
 import com.bitforcestudio.projectmanager.model.dto.ProjectDTO;
 import com.bitforcestudio.projectmanager.model.entity.Project;
 import com.bitforcestudio.projectmanager.service.ProjectManagerService;
@@ -8,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -20,14 +23,18 @@ public class ProjectManagerServiceImpl implements ProjectManagerService {
     private ProjectMapper projectMapper;
 
     @Override
-    public ProjectDTO createProject(ProjectDTO project) {
+    public ProjectDTO createProject(ProjectBasic project) {
         // get unique project id
         String projectId = UUID.randomUUID().toString();
         while(projectMapper.getProjectByProjectId(projectId) != null) {
             projectId = UUID.randomUUID().toString();
         }
-        project.setProjectId(projectId);
-        projectMapper.createNewProject(getProject(project));
+        log.info("new project id : " + projectId + " with size " + projectId.length());
+        ProjectDTO projectDTO = new ProjectDTO(projectId,
+            project.getProjectName(),
+            project.getProjectDetail(),
+            project.getOwnerId());
+        projectMapper.createNewProject(getProject(projectDTO));
 
         return getProjectDTO(projectMapper.getProjectByProjectId(projectId));
     }
@@ -50,7 +57,7 @@ public class ProjectManagerServiceImpl implements ProjectManagerService {
 
     @Override
     public ProjectDTO updateProject(ProjectDTO project) {
-        projectMapper.createNewProject(getProject(project));
+        projectMapper.updateProject(getProject(project));
 
         return getProjectDTO(projectMapper.getProjectByProjectId(project.getProjectId()));
     }
@@ -67,21 +74,29 @@ public class ProjectManagerServiceImpl implements ProjectManagerService {
 
     private ProjectDTO getProjectDTO(Project project) {
         if (project == null) return null;
+        List<Integer> viewersId = project.getViewersId().length() == 0 ? 
+            new ArrayList<>() : Arrays.asList(project.getViewersId().split(","))
+                .stream()
+                .map(viewerId -> Integer.parseInt(viewerId))
+                .collect(Collectors.toList()); 
         return new ProjectDTO(project.getProjectId(),
                 project.getProjectName(),
                 project.getProjectDetail(),
                 project.getOwnerId(),
-                project.getViewersId(),
+                viewersId,
                 project.getIsArchived(),
                 project.getModifiedTime());
     }
 
     private Project getProject(ProjectDTO projectDTO) {
+        String viewersIdStr = projectDTO.getViewersId().stream()
+            .map(String::valueOf)
+            .collect(Collectors.joining(","));
         return new Project(-1, projectDTO.getProjectId(), 
             projectDTO.getProjectName(), 
             projectDTO.getProjectDetail(), 
             projectDTO.getOwnerId(), 
-            projectDTO.getViewersId(), 
+            viewersIdStr, 
             projectDTO.getIsArchived(), 
             projectDTO.getModifiedTime());
     }

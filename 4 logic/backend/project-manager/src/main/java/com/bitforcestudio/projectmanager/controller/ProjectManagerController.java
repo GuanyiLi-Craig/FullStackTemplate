@@ -1,5 +1,6 @@
 package com.bitforcestudio.projectmanager.controller;
 
+import com.bitforcestudio.projectmanager.model.dto.ProjectBasic;
 import com.bitforcestudio.projectmanager.model.dto.ProjectDTO;
 import com.bitforcestudio.projectmanager.service.ProjectManagerService;
 import lombok.extern.slf4j.Slf4j;
@@ -7,7 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
-@RestController(value = "/project")
+@RestController
+@RequestMapping("/project")
 @Slf4j
 public class ProjectManagerController {
 
@@ -18,18 +20,18 @@ public class ProjectManagerController {
     private String serverPort;
 
     @PostMapping(value = "/create")
-    public ProjectDTO createProject(@RequestBody ProjectDTO project) {
+    public ProjectDTO createProject(@RequestBody ProjectBasic project) {
         log.info(serverPort + " create project");
         return projectManagerService.createProject(project);
     }
 
     @PostMapping(value = "/update")
     public ProjectDTO updateProject(@RequestBody ProjectDTO project) {
-        log.info(serverPort + "update project");
+        log.info(serverPort + " update project");
         return projectManagerService.updateProject(project);
     }
 
-    @GetMapping(value = "/projectid/{projetid}")
+    @GetMapping(value = "/projectid/{projectid}")
     public ProjectDTO getProjectByProjectId(@PathVariable("projectid") String projectId) {
         log.info(serverPort + " get project by project id");
 
@@ -41,5 +43,10 @@ public class ProjectManagerController {
         log.info(serverPort + " get projects by owner id");
 
         return projectManagerService.getProjectsByUser(ownerId);
+    }
+
+    @GetMapping(value = "/ping")
+    public String ping() {
+        return "pong - project manager";
     }
 }

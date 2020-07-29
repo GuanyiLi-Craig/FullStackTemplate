@@ -19,11 +19,11 @@ public class Project implements Serializable {
     private String projectName;
     private String projectDetail;
     private Integer ownerId;
-    private Integer[] viewersId;
+    private String viewersId;
     private Boolean isArchived;
     private Date modifiedTime;
 
     public Project(String projectId, String projectName, String projectDetail, Integer ownerId) {
-        this(-1, projectId, projectName, projectDetail, ownerId, new Integer[0], false, new Date(System.currentTimeMillis()));
+        this(-1, projectId, projectName, projectDetail, ownerId, "", false, new Date(System.currentTimeMillis()));
     }
 }

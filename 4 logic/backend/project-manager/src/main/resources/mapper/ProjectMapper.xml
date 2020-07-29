@@ -22,18 +22,18 @@
     public Project[] getProjectByViewerId(@Param("viewerId") Integer viewerId);
 -->
 
-    <sql id="createProjectTable">
+    <insert id="createProjectTable">
         create table if not exists project(
             id INT UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY,
-            project_id VARCHAR(32) UNIQUE KEY NOT NULL,
+            project_id VARCHAR(64) UNIQUE KEY NOT NULL,
             project_name CHAR(128) NOT NULL,
             project_detail TEXT,
             owner_id INT NOT NULL,
-            viewers_id LIST,
+            viewers_id TEXT,
             is_archived BOOLEAN,
-            modified_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            modified_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         ) engine=innodb;
-    </sql>
+    </insert>
 
 
     <insert id="createNewProject" parameterType="com.bitforcestudio.projectmanager.model.entity.Project"
@@ -50,8 +50,10 @@
 
     <update id="updateProject" parameterType="com.bitforcestudio.projectmanager.model.entity.Project"
             useGeneratedKeys="true" keyProperty="projectId">
-        update user set project_name=#{projectName} project_detail=#{projectDetail}
-                        viewers_id=#{viewersId} is_archived=#{isArchived}
+        update project set project_name=#{projectName},
+                           project_detail=#{projectDetail}, 
+                           viewers_id=#{viewersId},
+                           is_archived=#{isArchived} 
         where project_id=#{projectId};
     </update>
 
@@ -65,11 +67,11 @@
         select * from project where project_id=#{projectId};
     </select>
 
-    <select id="getProjectsByOwnerId" parameterType="ownerId" resultMap="ProjectResultMap">
+    <select id="getProjectsByOwnerId" parameterType="Integer" resultMap="ProjectResultMap">
         select * from project where owner_id=#{ownerId};
     </select>
 
-    <select id="getProjectByViewerId" parameterType="viewerId" resultMap="ProjectResultMap">
+    <select id="getProjectByViewerId" parameterType="Integer" resultMap="ProjectResultMap">
         select * from project where owner_id=#{viewerId};
     </select>
 
@@ -77,9 +79,9 @@
         <id column="id" property="id" jdbcType="INTEGER"/>
         <id column="project_id" property="projectId" jdbcType="VARCHAR"/>
         <id column="project_name" property="projectName" jdbcType="CHAR"/>
-        <id column="project_detail" property="projectDetail" jdbcType="TEXT"/>
+        <id column="project_detail" property="projectDetail" jdbcType="VARCHAR"/>
         <id column="owner_id" property="ownerId" jdbcType="INTEGER"/>
-        <id column="viewers_id" property="viewersId" jdbcType="LIST"/>
+        <id column="viewers_id" property="viewersId" jdbcType="VARCHAR"/>
         <id column="is_archived" property="isArchived" jdbcType="BOOLEAN"/>
         <id column="modified_time" property="modifiedTime" jdbcType="TIMESTAMP"/>
     </resultMap>
