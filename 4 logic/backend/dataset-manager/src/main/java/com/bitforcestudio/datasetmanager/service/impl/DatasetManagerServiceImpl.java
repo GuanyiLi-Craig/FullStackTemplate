@@ -32,6 +32,8 @@ public class DatasetManagerServiceImpl implements DatasetManagerService {
         DatasetDTO datasetDTO = new DatasetDTO(datasetId,
             dataset.getDatasetName(),
             dataset.getDatasetDetail(),
+            dataset.getBaseURL(),
+            dataset.getVariablesRange(),
             dataset.getProjectId());
         datasetMapper.createNewDataset(getDataset(datasetDTO));
 
@@ -78,6 +80,8 @@ public class DatasetManagerServiceImpl implements DatasetManagerService {
             datasetDto.getDatasetId(),
             datasetDto.getDatasetName(),
             datasetDto.getDatasetDetail(),
+            datasetDto.getBaseURL(),
+            datasetDto.getVariablesRange(),
             datasetDto.getProjectId(),
             datasetDto.getModifiedTime());
     }
@@ -86,6 +90,8 @@ public class DatasetManagerServiceImpl implements DatasetManagerService {
         return new DatasetDTO(dataset.getDatasetId(),
             dataset.getDatasetName(),
             dataset.getDatasetDetail(),
+            dataset.getBaseURL(),
+            dataset.getVariablesRange(),
             dataset.getProjectId(),
             dataset.getModifiedTime());
     }

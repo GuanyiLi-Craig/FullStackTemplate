@@ -17,10 +17,12 @@ public class DatasetDTO {
     private String datasetId;
     private String datasetName;
     private String datasetDetail;
+    private String baseURL;
+    private String variablesRange;
     private String projectId;
     private Date modifiedTime;
 
-    public DatasetDTO(String datasetId, String datasetName, String datasetDetail, String projectiId) {
-        this(datasetId, datasetName, datasetDetail, projectiId, new Date(System.currentTimeMillis()));
+    public DatasetDTO(String datasetId, String datasetName, String datasetDetail, String baseURL, String variablesRange, String projectiId) {
+        this(datasetId, datasetName, datasetDetail, baseURL, variablesRange, projectiId, new Date(System.currentTimeMillis()));
     }
 }
