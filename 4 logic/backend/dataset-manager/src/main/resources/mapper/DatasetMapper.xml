@@ -27,8 +27,6 @@
             dataset_id VARCHAR(64) UNIQUE KEY NOT NULL,
             dataset_name CHAR(128) NOT NULL,
             dataset_detail TEXT,
-            base_url TEXT,
-            variables_range TEXT,
             project_id VARCHAR(64) NOT NULL,
             modified_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         ) engine=innodb;
@@ -37,8 +35,8 @@
 
     <insert id="createNewDataset" parameterType="com.bitforcestudio.datasetmanager.model.entity.Dataset"
             useGeneratedKeys="true" keyProperty="datasetId">
-        insert into dataset(dataset_id, dataset_name, dataset_detail, base_url, variables_range, project_id)
-        values(#{datasetId}, #{datasetName}, #{datasetDetail}, #{baseURL}, #{variablesRange}, #{projectId});
+        insert into dataset(dataset_id, dataset_name, dataset_detail, project_id)
+        values(#{datasetId}, #{datasetName}, #{datasetDetail}, #{projectId});
     </insert>
 
 
@@ -50,9 +48,7 @@
     <update id="updateDataset" parameterType="com.bitforcestudio.datasetmanager.model.entity.Dataset"
             useGeneratedKeys="true" keyProperty="datasetId">
         update dataset set dataset_name=#{datasetName},
-                           dataset_detail=#{datasetDetail},
-                           base_url=#{baseURL},
-                           variables_range=#{variablesRange}
+                           dataset_detail=#{datasetDetail}
         where dataset_id=#{datasetId};
     </update>
 
@@ -75,8 +71,6 @@
         <id column="dataset_id" property="datasetId" jdbcType="VARCHAR"/>
         <id column="dataset_name" property="datasetName" jdbcType="CHAR"/>
         <id column="dataset_detail" property="datasetDetail" jdbcType="VARCHAR"/>
-        <id column="base_url" property="baseURL" jdbcType="VARCHAR"/>
-        <id column="variables_range" property="variablesRange" jdbcType="VARCHAR"/>
         <id column="project_id" property="projectId" jdbcType="VARCHAR"/>
         <id column="modified_time" property="modifiedTime" jdbcType="TIMESTAMP"/>
     </resultMap>

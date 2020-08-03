@@ -12,7 +12,5 @@ import lombok.Setter;
 public class DatasetBasic {
     private String datasetName;
     private String datasetDetail;
-    private String baseURL;
-    private String variablesRange;
     private String projectId;
 }
