@@ -31,7 +31,7 @@
 
 
     <update id="updateUser" parameterType="com.bitforcestudio.usermanager.model.entity.User" useGeneratedKeys="true" keyProperty="userId">
-          update user set user_name=#{userName} password=#{password} user_stats=#{userStats} where userId=#{userId};
+          update user set user_name=#{userName}, password=#{password}, user_stats=#{userStats} where userId=#{userId};
     </update>
 
 

@@ -45,7 +45,7 @@
 
     <delete id="removeProject" parameterType="Integer">
         delete from project where id=#{id};
-    </delete>
+    </delete> 
 
 
     <update id="updateProject" parameterType="com.bitforcestudio.projectmanager.model.entity.Project"

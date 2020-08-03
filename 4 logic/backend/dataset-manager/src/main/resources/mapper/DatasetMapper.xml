@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bitforcestudio.datasetmanager.mapper.DatasetMapper">
+<!--
+    public boolean createDatasetTable();
+
+    public int createNewDataset(Dataset dataset);
+
+    public boolean removeDataset(String datasetId);
+
+    public int updateDataset(Dataset dataset);
+
+    public Dataset getDatasetByInnerId(@Param("id") Integer id);
+
+    public Dataset getDatasetByDatasetId(@Param("datasetId") String datasetId);
+
+    public Dataset[] getDatasetsByProjectId(@Param("projectId") String projectId);
+
+-->
+
+    <insert id="createDatasetTable">
+        create table if not exists dataset(
+            id INT UNSIGNED AUTO_INCREMENT NOT NULL PRIMARY KEY,
+            dataset_id VARCHAR(64) UNIQUE KEY NOT NULL,
+            dataset_name CHAR(128) NOT NULL,
+            dataset_detail TEXT,
+            project_id VARCHAR(64) NOT NULL,
+            modified_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) engine=innodb;
+    </insert>
+
+
+    <insert id="createNewDataset" parameterType="com.bitforcestudio.datasetmanager.model.entity.Dataset"
+            useGeneratedKeys="true" keyProperty="datasetId">
+        insert into dataset(dataset_id, dataset_name, dataset_detail, project_id)
+        values(#{datasetId}, #{datasetName}, #{datasetDetail}, #{projectId});
+    </insert>
+
+
+    <delete id="removeDataset" parameterType="Integer">
+        delete from dataset where id=#{id};
+    </delete> 
+
+
+    <update id="updateDataset" parameterType="com.bitforcestudio.datasetmanager.model.entity.Dataset"
+            useGeneratedKeys="true" keyProperty="datasetId">
+        update dataset set dataset_name=#{datasetName},
+                           dataset_detail=#{datasetDetail}
+        where dataset_id=#{datasetId};
+    </update>
+
+
+    <select id="getDatasetByInnerId" parameterType="Integer" resultMap="DatasetResultMap">
+        select * from dataset where id=#{id};
+    </select>
+
+
+    <select id="getDatasetByDatasetId" parameterType="String" resultMap="DatasetResultMap">
+        select * from dataset where dataset_id=#{datasetId};
+    </select>
+
+    <select id="getDatasetsByProjectId" parameterType="String" resultMap="DatasetResultMap">
+        select * from dataset where project_id=#{projectId};
+    </select>
+
+    <resultMap id="DatasetResultMap" type="com.bitforcestudio.datasetmanager.model.entity.Dataset">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <id column="dataset_id" property="datasetId" jdbcType="VARCHAR"/>
+        <id column="dataset_name" property="datasetName" jdbcType="CHAR"/>
+        <id column="dataset_detail" property="datasetDetail" jdbcType="VARCHAR"/>
+        <id column="project_id" property="projectId" jdbcType="VARCHAR"/>
+        <id column="modified_time" property="modifiedTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+</mapper>
